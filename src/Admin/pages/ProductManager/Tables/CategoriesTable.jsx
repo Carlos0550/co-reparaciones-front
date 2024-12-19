@@ -7,10 +7,6 @@ import Alerts from "../../../../Components/Modales/Alerts"
 function CategoriesTable() {
     const { categories, getCategories, handlerCategories, showCategoryForm, showAlertCategories, } = useAppContext()
 
-
-    useEffect(()=>{
-        getCategories()
-    },[])
     const columns = [
         {
             title: "Categoría",

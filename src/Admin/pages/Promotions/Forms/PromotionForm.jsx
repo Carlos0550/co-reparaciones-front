@@ -85,7 +85,6 @@ function PromotionForm() {
           
         const result = editingPromotion ? await editPromotion(formData) : await savePromotion(formData)
         setSaving(false)
-        console.log(result)
         if (result) {
             form.resetFields()
             setFileList([])
@@ -242,7 +241,7 @@ function PromotionForm() {
             setPromotion_discount(selectedPromo.promotion_discount || 0)
             setSelectedProduct(selectedPromo.promotion_data?.product_id || "")
             const productsList = selectedPromo.promotion_data?.promotion_products_array
-            console.log(productsList)
+
             !isSinglePromotion && handleVerifyProducts(Array.isArray(productsList) && productsList?.length > 0 ? productsList?.map(prod => `${prod.quantity} ${prod.productName} ${prod.productPrice}`).join("\n") : "")
             form.setFieldsValue({
                 promotion_name: selectedPromo.promotion_name,
@@ -258,25 +257,20 @@ function PromotionForm() {
     },[promotionID, editingPromotion])
 
     useEffect(() => {
-        console.warn("productsListTotal: ", productsListTotal)
         if (isSinglePromotion) {   
-            console.log("Promocion simple")
  
             const productPrice = productsList.find(prod => prod.id === selectedProduct)?.product_price;
-            console.log("ProductPrice", productPrice)
             const discount = promotion_discount === "" ? 0 : parseFloat(promotion_discount);
     
             const discountPrice = productPrice ? (productPrice * (1 - discount / 100)) : productPrice;
             
             setTotalProducts(discountPrice);
         }else{
-            console.log("Promocion multiple")
             const discount = promotion_discount === "" ? 0 : parseFloat(promotion_discount);
-            console.log("Descuento", discount)
             const discountPrice = productsListTotal ? (productsListTotal * (1 - discount / 100)) : productsListTotal;
             setTotalProducts(discountPrice)
         }
-    }, [isSinglePromotion, promotion_discount, selectedProduct, productsListTotal]);
+    }, [isSinglePromotion, promotion_discount, selectedProduct, productsListTotal, productsList]);
     
     return (
         <Form

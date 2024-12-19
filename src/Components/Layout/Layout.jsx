@@ -26,7 +26,7 @@ function LayoutComponent({ component }) {
 
             <div className="main-layout">
                 <aside className={resizeSideBar ? "sider active" : "sider"}>
-                    {!resizeSideBar ? <p>Plantas Emanuel</p> : <p style={{ marginBottom: "18px" }}></p>}
+                    {!resizeSideBar ? <p className='sider-title'>CO.Reparaciones</p> : <p style={{ marginBottom: "18px" }}></p>}
                     {width < 868 && <span onClick={() => setResizeSideBar(!resizeSideBar)} className={resizeSideBar ? "menu-icon active" : "menu-icon"}>
                         <MenuOutlined style={{ fontSize: "24px" }} />
                     </span>}

@@ -16,8 +16,7 @@ function SettingsManager() {
   const [updatingValues, setUpdatingValues] = useState(false)
 
   const { editPageColors, headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
-    subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, loginData } = useAppContext()
-
+    subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, loginData, closeSession } = useAppContext()
   const dinamicUpdateValues = async() => {
     setUpdatingValues(true)
     const hiddenMessage = message.loading("Guardando cambios...")
@@ -29,20 +28,16 @@ function SettingsManager() {
     formData.append("subtitleColor", subtitleColor)
     formData.append("paragraphColor", paragraphColor)
     const result = await editPageColors(formData)
-    setTimeout(() => {
-      
       setUpdatingValues(false)
       hiddenMessage()
       if(result){
         message.success("Cambios guardados correctamente")
         setHasChanged(false)
       }
-      
-    }, 500);
+    
   }
 
   const handleColorChange = (setColor) => (color) => {
-    console.log(color)
     const { r, g, b } = color.metaColor
     const hexColor = rgbToHex(r, g, b)
     setColor(hexColor)
@@ -81,7 +76,7 @@ function SettingsManager() {
           <Col xl={12} lg={12} md={12} xs={24}>
             <Title level={4}>Color del encabezado (header)</Title>
             <ColorPicker
-              defaultValue={headerColor}
+              value={headerColor}
               onChange={handleColorChange(setHeaderColor, "headerColor")}
               defaultFormat='hex'
               disabled={updatingValues}
@@ -89,7 +84,7 @@ function SettingsManager() {
 
             <Title level={4}>Color del contenido principal</Title>
             <ColorPicker
-              defaultValue={contentColor}
+              value={contentColor}
               onChange={handleColorChange(setContentColor, "contentColor")}
               defaultFormat='hex'
               disabled={updatingValues}
@@ -97,7 +92,7 @@ function SettingsManager() {
 
             <Title level={4}>Color del pie (footer) de la página</Title>
             <ColorPicker
-              defaultValue={footerColor}
+              value={footerColor}
               onChange={handleColorChange(setFooterColor, "footerColor")}
               defaultFormat='hex'
               disabled={updatingValues}
@@ -108,7 +103,7 @@ function SettingsManager() {
           <Col xl={12} lg={12} md={12} xs={24}>
             <Title level={4}>Color de los títulos</Title>
             <ColorPicker
-              defaultValue={titleColor}
+              value={titleColor}
               onChange={handleColorChange(setTitleColor, "titleColor")}
               defaultFormat='hex'
               disabled={updatingValues}
@@ -116,7 +111,7 @@ function SettingsManager() {
 
             <Title level={4}>Color de los subtítulos</Title>
             <ColorPicker
-              defaultValue={subtitleColor}
+              value={subtitleColor}
               onChange={handleColorChange(setSubtitleColor, "subtitleColor")}
               defaultFormat='hex'
               disabled={updatingValues}
@@ -124,7 +119,7 @@ function SettingsManager() {
 
             <Title level={4}>Color de los párrafos</Title>
             <ColorPicker
-              defaultValue={paragraphColor}
+              value={paragraphColor}
               onChange={handleColorChange(setParagraphColor, "paragraphColor")}
               defaultFormat='hex'
               disabled={updatingValues}

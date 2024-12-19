@@ -1,5 +1,5 @@
-import React from 'react'
-import { Row, Col, Card } from 'antd'
+import React, { useState } from 'react'
+import { Row, Col, Card, Button, message } from 'antd'
 import AddCategories from './Forms/AddCategories'
 import AddProducts from './Forms/AddProducts'
 import CategoriesTable from './Tables/CategoriesTable'
@@ -7,7 +7,16 @@ import ProductsTable from './Tables/ProductsTable'
 import { useAppContext } from '../../../AppContext'
 import Title from 'antd/es/typography/Title'
 function ProductsManager() {
-    const { editingProduct } = useAppContext()
+    const { editingProduct, getProducts } = useAppContext()
+
+    const [gettingProducts, setGettingProducts] = useState(false)
+    const handleGetProducts = async() => {
+        const hiddenMessage = message.loading("Obteniendo productos...")
+        setGettingProducts(true)
+        await getProducts()
+        setGettingProducts(false)
+        hiddenMessage()
+    }
 
   return (
     <React.Fragment>
@@ -31,6 +40,7 @@ function ProductsManager() {
 
             <Col xs={24}>
                 <Card title="Listado de productos">
+                    <Button onClick={()=> handleGetProducts()} loading={gettingProducts} style={{marginBottom: "10px"}}>Refrescar</Button>
                     <ProductsTable/>
                 </Card>
             </Col>

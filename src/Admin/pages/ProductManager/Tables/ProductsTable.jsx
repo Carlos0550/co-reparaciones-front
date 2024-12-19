@@ -93,10 +93,6 @@ function ProductsTable() {
         }
     ]
 
-    useEffect(() => {
-        getProducts()
-    }, [])
-
     return (
         <React.Fragment>
             <Table

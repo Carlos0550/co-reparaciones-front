@@ -78,7 +78,7 @@ function BannersForm() {
             
 
             const [compressedFiles] = await resizeAndConvertImages([file])
-            console.log("compressedFiles", compressedFiles)
+
             const newFileList = {
                 uid: compressedFiles.uid,
                 name: compressedFiles.name,
@@ -91,9 +91,6 @@ function BannersForm() {
         return false
     }
 
-    useEffect(()=>{
-        console.log("Imagenes cargadas: ", fileList)
-    },[fileList])
 
     useEffect(()=>{
         if(editingBanner && bannerId) {
@@ -139,9 +136,6 @@ function BannersForm() {
                 rules={[
                     {
                         validator: () => {
-                            if (fileList.length === 0){
-                                return Promise.reject("Por favor ingrese al menos una imagen")
-                            }
                             if (fileList.length >= 3){
                                 setFileList(fileList.slice(-2))
                                 return Promise.reject("Solo puedes subir hasta 2 imagenes")

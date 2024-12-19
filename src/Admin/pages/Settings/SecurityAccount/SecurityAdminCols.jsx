@@ -4,7 +4,7 @@ import { Button } from 'antd'
 import { useAppContext } from '../../../../AppContext'
 
 export default function getSecurityAdminColumns() {
-    const { setEditingAdminPsw } = useAppContext()
+    const { setEditingAdminPsw, closeSession } = useAppContext()
   return [
     {
       title: 'Nombre de usuario',
@@ -32,7 +32,7 @@ export default function getSecurityAdminColumns() {
       )
     },{
         render: () => (
-            <Button type='primary' danger>Cerrar sesión</Button>
+            <Button type='primary' danger onClick={()=> closeSession()}>Cerrar sesión</Button>
         )
     }
   ]

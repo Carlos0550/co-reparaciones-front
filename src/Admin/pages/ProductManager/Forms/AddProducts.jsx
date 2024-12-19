@@ -64,8 +64,9 @@ function AddProducts() {
                 fileList, 
             }));
         },[fileList])
-        
+    const [saving, setSaving] = useState(false);
     const onFinish = async (values) => {
+        setSaving(true)
         const htmlDescription = stateToHTML(editorState.getCurrentContent());
         const formData = new FormData();
         for (const key in values) {
@@ -102,15 +103,16 @@ function AddProducts() {
             form.resetFields()
             setFileList([])
             setEditorState(EditorState.createEmpty())
-            getProducts()
+            message.loading('Actualizando lista de productos...')
+            await getProducts()
             handleProducts()
         }
+        setSaving(false)
     };
 
     useEffect(()=>{
         if(editingProduct && productId){
             const selectedProduct = productsList.find(product => product.id === productId)
-            console.log(selectedProduct)
             form.setFieldsValue({
                 product_name: selectedProduct.product_name,
                 product_category: selectedProduct.product_category,
@@ -248,8 +250,8 @@ useEffect(()=>{
             </Form.Item>
 
             <Form.Item>
-                <Button type="primary" htmlType="submit">
-                    Agregar Producto
+                <Button type="primary" htmlType="submit" loading={saving}>
+                    Guardar Producto
                 </Button>
             </Form.Item>
         </Form>

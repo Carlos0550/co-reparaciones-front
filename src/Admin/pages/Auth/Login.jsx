@@ -9,7 +9,7 @@ function Login() {
     const [isLoading, setIsLoading] = useState(false)
     const [hiddenPsw, setHiddenPsw] = useState(true)
     const [showOtpInput, setShowOtpInput] = useState(false)
-    const [switchInput, setSwitchInput] = useState(false)
+
     const [hiddenMainForm, setHiddenMainForm] = useState(false)
     const [adminVerified, setAdminVerified] = useState(false)
     const [user_email, setUserEmail] = useState("")
@@ -72,7 +72,7 @@ function Login() {
             const result = adminVerified ? await loginAdmin(formData) : await updateAdminPassword(values.user_password, user_email)
             
             if (result) {
-                navigate("/dashboard")
+                navigate("/admin-dashboard")
             } else {
                 console.log("No se pudo guardar la contraseña")
             }
@@ -108,15 +108,6 @@ function Login() {
                         >
                             <Input placeholder="Introduce tu email" />
                         </Form.Item>
-
-                        <Space>
-                            <Switch
-                                style={{ marginBottom: "10px" }}
-                                value={switchInput}
-                                onChange={(e) => setSwitchInput(e)}
-                            />
-                            <p style={{ marginBottom: "10px" }}>Soy administrador</p>
-                        </Space>
 
                         <Button htmlType="submit" type="primary" loading={isLoading}>Iniciar sesión</Button>
                     </Form>
@@ -161,12 +152,11 @@ function Login() {
                             </Form.Item>
 
                             <Form.Item>
-                                <Button type="primary" htmlType="submit" loading={isLoading}>Guardar contraseña</Button>
+                                <Button type="primary" htmlType="submit" loading={isLoading}>{adminVerified ? "Iniciar sesión" : "Guardar contraseña"}</Button>
                             </Form.Item>
                         </Form>
                     )}
 
-                    <button className="recover-password-btn">Recuperar contraseña</button>
                 </div>
             </div>
         </React.Fragment>

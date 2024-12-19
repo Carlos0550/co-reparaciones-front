@@ -72,6 +72,11 @@
     background-color: #0a2b00;
 }
 
+.sider-title{
+    text-wrap: wrap;
+    word-break: break-all;
+}
+
 .menu-icon {
     background-color: #000000;
     width: 40px;

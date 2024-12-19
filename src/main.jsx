@@ -11,11 +11,11 @@ import { ConfigProvider } from 'antd'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <ConfigProvider locale={esES}>
-        <AppProvider>
+      <AppProvider>
+        <ConfigProvider locale={esES}>
           <App />
-        </AppProvider>
-      </ConfigProvider>
+        </ConfigProvider>
+      </AppProvider>
     </BrowserRouter>
   </StrictMode>,
 )

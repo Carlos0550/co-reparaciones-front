@@ -180,7 +180,10 @@ export const AppProvider = ({ children }) => {
             const response = await fetch(`${apis.backend}/api/products/get-products`)
 
             const responseData = await processRequests(response)
-            if(response.status === 404) return;
+            if(response.status === 404){
+                setProductsList([])
+                return
+            };
             if(!response.ok) throw new Error(responseData.msg)
 
             if(responseData.products.length > 0) setProductsList(responseData.products)
@@ -244,7 +247,7 @@ export const AppProvider = ({ children }) => {
             const responseData = await processRequests(response)
             if(!response.ok) throw new Error(responseData.msg)
             message.success(`${responseData.msg}`)
-            getProducts()
+            await getProducts()
             return true
         } catch (error) {
             console.log(error)
@@ -301,12 +304,10 @@ export const AppProvider = ({ children }) => {
 
     
     const getCountProductsWithCategory = async(categoryID) => {
-        console.log(categoryID)
         try {
             const response = await fetch(`${apis.backend}/api/categories/get-count-products-with-category/${categoryID || categoryId}`)
 
             const responseData = await processRequests(response)
-            console.log(responseData)
             if(!response.ok) throw new Error(responseData.msg)
             return responseData.countPrWithCat
         } catch (error) {
@@ -548,15 +549,11 @@ export const AppProvider = ({ children }) => {
         }
     }
     const [banners, setBanners] = useState([])
-
-    useEffect(()=>{
-        console.log("Banners", banners)
-    },[banners])
     const getAllBanners = async() => {
         try {
             const response = await fetch(`${apis.backend}/api/banners/get-banners`)
             const responseData = await processRequests(response)
-            if(response.status === 404) return;
+            if(response.status === 404) return setBanners([]);
             if(!response.ok) throw new Error(responseData.msg)
             if(responseData.banners.length > 0) setBanners(responseData.banners)
             else setBanners([])
@@ -647,7 +644,6 @@ export const AppProvider = ({ children }) => {
             setTitleColor(responseData.titleColor)
             setSubtitleColor(responseData.subtitleColor)
             setParagraphColor(responseData.paragraphColor)
-            console.log(responseData)
             return true
         } catch (error) {
             console.log(error)
@@ -712,6 +708,12 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    const closeSession = async() => {
+        const session_data = localStorage.getItem("session_data")
+        if(session_data) localStorage.removeItem("session_data")
+        navigate("/")
+    }
+
     const appIsReady = useRef(false)
     useEffect(()=>{
         (async()=>{
@@ -761,9 +763,7 @@ export const AppProvider = ({ children }) => {
             navigate("/")
             return 
         }
-    
-        console.log("Datos de la sesión:", data)
-        
+            
         const argentinaTime = dayjs().tz("America/Buenos_Aires")
     
         if (data?.session_timeout && argentinaTime.isAfter(data?.session_timeout)) {
@@ -805,7 +805,8 @@ export const AppProvider = ({ children }) => {
                 savePromotion, promotions, getAllPromotions, deletePromotion, handlePromotions, promotionID, editingPromotion,
                 editPromotion, saveBanner, banners, deleteBanner, handleBanner, bannerId, editingBanner, editBanner, editPageColors,
                 headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
-                subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw
+                subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw, getAllBanners,
+                closeSession
             }}
         >
             {children}

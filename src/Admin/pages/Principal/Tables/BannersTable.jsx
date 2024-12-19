@@ -5,7 +5,7 @@ import "./BannerTable.css"
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import EditFormModal from '../Modals/EditFormModal'
 function BannersTable() {
-    const { banners, deleteBanner, handleBanner, editingBanner } = useAppContext()
+    const { banners, deleteBanner, handleBanner, editingBanner, getAllBanners } = useAppContext()
     const [deleting, setDeleting] = useState(false)
     const handleDelete = async(banner_id) => {
         setDeleting(true)
@@ -15,6 +15,15 @@ function BannersTable() {
 
     const handleEditBanner = (banner_id) => {
         handleBanner(banner_id,true)
+    }
+
+    const [gettingBanners, setGettingBanners] = useState(false)
+    const handleGetBanners = async() => {
+        const hiddenMessage = message.loading("Obteniendo banners...",0)
+        setGettingBanners(true)
+        await getAllBanners()
+        setGettingBanners(false)
+        hiddenMessage()
     }
     const tableCols = [
         {
@@ -58,12 +67,13 @@ function BannersTable() {
     ]
   return (
     <React.Fragment>
+        <Button style={{marginBottom: 10}} loading={gettingBanners} onClick={handleGetBanners}>Refrescar</Button>
         <Table
             columns={tableCols}
             dataSource={banners}
             rowKey="id"
             pagination={{ pageSize: 5 }}
-            loading={!banners}
+            loading={gettingBanners}
             scroll={{ x: 1000 }}
         />
 
