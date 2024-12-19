@@ -1,9 +1,10 @@
 import { Button, Popconfirm, Space, Table } from "antd"
 import { useAppContext } from "../../../../AppContext"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import "./ProductsTable.css"
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
 import EditorModal from "../../../../Components/Modales/EditorModal"
+import ViewDescriptionsModal from "./ViewDescriptionsModal"
 function ProductsTable() {
     const { getProducts, 
         productsList, 
@@ -13,6 +14,10 @@ function ProductsTable() {
         categories,
         width
     } = useAppContext()
+
+    const [viewDescriptionProduct, setViewDescriptionProduct] = useState(false)
+    const [productDescription, setProductDescription] = useState("")
+
 
     const tableColumns = [
         {
@@ -52,14 +57,11 @@ function ProductsTable() {
         {
             title: "Descripción",
             render: (_,record) => (
-                <Popconfirm
-                    description={<div dangerouslySetInnerHTML={{ __html: record.product_description }}></div>}
-                    okText={"Cerrar"}
-                    overlayStyle={{ maxWidth: width > 800 ? "50%" : width, overflowY: "auto", maxHeight: "70vh" }}
-                    cancelButtonProps={{ style: { display: "none" } }}
-                >
-                    <Button>Ver descripción</Button>
-                </Popconfirm>
+                    <Button onClick={() => {
+                        setProductDescription(record.product_description)
+                        setViewDescriptionProduct(true)
+                    }}>Ver descripción</Button>
+                
             )
         },
         {
@@ -102,6 +104,7 @@ function ProductsTable() {
             />
 
             {showProductForm && (<EditorModal />)}
+            {viewDescriptionProduct && <ViewDescriptionsModal description={productDescription} closeModal={() => setViewDescriptionProduct(false)}/>}
         </React.Fragment>
     )
 }
