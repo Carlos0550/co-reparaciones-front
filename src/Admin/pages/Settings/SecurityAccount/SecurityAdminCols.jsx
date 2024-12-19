@@ -26,7 +26,7 @@ export default function getSecurityAdminColumns() {
       title: 'Contraseña',
       key: 'password',
       render: (_, record) => (
-        <Button type='primary' onClick={() => setEditingAdminPsw(true)}>
+        <Button type='primary' onClick={() => setEditingAdminPsw(true)} disabled>
           Cambiar contraseña
         </Button>
       )
@@ -39,6 +39,7 @@ export default function getSecurityAdminColumns() {
 }
 
 const formatSessionDate = (expired_session) => {
+  console.log(expired_session)
   if (!expired_session) return 'Sin fecha'
   return dayjs(expired_session).format('YYYY-MM-DD')
 }
