@@ -77,14 +77,13 @@ function BannersForm() {
         } else {
             
 
-            const [compressedFiles] = await resizeAndConvertImages([file])
 
             const newFileList = {
-                uid: compressedFiles.uid,
-                name: compressedFiles.name,
-                originFileObj: compressedFiles,
+                uid: file.uid,
+                name: file.name,
+                originFileObj: file,
                 editing: false,
-                thumbUrl: URL.createObjectURL(compressedFiles)
+                thumbUrl: URL.createObjectURL(file)
             }
             setFileList((prevList) => [...prevList, newFileList]);
         }
