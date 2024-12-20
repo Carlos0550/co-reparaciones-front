@@ -10,6 +10,7 @@ import RoadSVg from "../../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24
 import ProductDetailsView from "../views/ProductDetailsView/ProductDetailsView.jsx"
 import CartView from "../views/CartView/CartView.jsx"
 import Loader from "../../utils/Loader.jsx"
+import Logo from "../../../public/logo.jpeg"
 function ClientLayout() {
     const { categories,
         paragraphColor,
@@ -57,7 +58,7 @@ function ClientLayout() {
             <header className="header" >
                 <nav className="navbar" style={{ backgroundColor: headerColor || "#ffffff" }}>
                     <picture className="logo-container" onClick={() => navigate("/")}>
-                        <img src="../../../public/logo.jpeg" />
+                        <img src={Logo} />
                     </picture>
                     <ul className="navbar-ul">
                         {Array.isArray(categories) && width > 768 && categories.slice(0, (() => {

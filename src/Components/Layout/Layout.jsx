@@ -1,5 +1,4 @@
 import './LayoutComponent.css';
-import logoImg from "../../public/assets/logo.png"
 import { HomeOutlined, MenuOutlined, ProductOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
