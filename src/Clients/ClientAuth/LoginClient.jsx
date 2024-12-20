@@ -60,7 +60,7 @@ function LoginClient() {
                             <Input placeholder="jhon@gmail.com" />
                         </Form.Item>
                         <Form.Item>
-                            <Button htmlType="submit" type="primary">Iniciar sesión</Button>
+                            <Button htmlType="submit" type="primary" loading={isLoading}>Iniciar sesión</Button>
                         </Form.Item>
                         <div className="form-buttons">
                             <Button onClick={() => navigate("/login-admin")}>Soy administrador</Button>
@@ -88,9 +88,9 @@ function LoginClient() {
                             <Input.OTP length={5} style={{margin: "0 auto"}}/>
                         </Form.Item>
                         <Form.Item>
-                            <Button htmlType="submit" type="primary">Iniciar sesión</Button>
+                            <Button htmlType="submit" type="primary" loading={isLoading}>Iniciar sesión</Button>
                         </Form.Item>
-                        <Button danger>Cancelar</Button>
+                        <Button danger onClick={()=> setHiddenMainForm(false)}>Cancelar</Button>
                     </Form>}
                 </div>
 
