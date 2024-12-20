@@ -1,0 +1,126 @@
+/* Contenedor principal para los detalles del producto */
+.product-details-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.product-details {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+}
+
+.product-details-image {
+    flex: 1 1 50%;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-details-image img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.product-details-thumbnails {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.product-details-thumbnails img {
+    max-width: 70px;
+    height: 70px;
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.product-details-thumbnails img:hover {
+    transform: scale(1.1);
+}
+
+.product-details-description {
+    flex: 1 1 40%;
+    font-size: 1.2rem;
+    padding: 20px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.product-details-description h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.product-details-description p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.product-details-description p:first-child {
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+.product-details-description p:last-child {
+    line-height: 1.6;
+}
+
+.product-details-description p:last-of-type {
+    font-size: 1rem;
+}
+
+.product-details-description .add-to-cart-btn {
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.product-details-description .add-to-cart-btn:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 868px) {
+    .product-details {
+        flex-direction: column;
+        
+    }
+
+    .product-details-wrapper {
+        padding: 10px;
+    }
+
+    .product-details-image {
+        max-width: 100%;
+        
+    }
+
+    .product-details-thumbnails {
+       
+        flex-direction: row;
+    }
+
+    .product-details-description {
+        max-width: 100%;
+        padding: 15px;
+    }
+}
