@@ -1,0 +1,11 @@
+.login-client-wrapper{
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 5px;
+    
+}
+
+.form-buttons{
+    display: flex;
+    gap: 1rem;
+}
