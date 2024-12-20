@@ -3,12 +3,14 @@ import PropTypes from 'prop-types';
 import { apis } from './utils/apis';
 import { processRequests } from './utils/processRequests';
 import { message, notification } from "antd"
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import dayjs from "dayjs"
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import EditorModal from './Components/Modales/EditorModal';
+import loaderSpinner from "../public/90-ring-with-bg.svg"
 
+import Loader from "./utils/Loader"
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -626,12 +628,12 @@ export const AppProvider = ({ children }) => {
             return false
         }
     }
-    const [headerColor, setHeaderColor] = useState("#000000")
-    const [contentColor, setContentColor] = useState("#000000")
-    const [footerColor, setFooterColor] = useState("#000000")
-    const [titleColor, setTitleColor] = useState("#000000")
-    const [subtitleColor, setSubtitleColor] = useState("#000000")
-    const [paragraphColor, setParagraphColor] = useState("#000000")
+    const [headerColor, setHeaderColor] = useState("")
+    const [contentColor, setContentColor] = useState("")
+    const [footerColor, setFooterColor] = useState("")
+    const [titleColor, setTitleColor] = useState("")
+    const [subtitleColor, setSubtitleColor] = useState("")
+    const [paragraphColor, setParagraphColor] = useState("")
 
     const getPageColors = async() => {
         try {
@@ -714,10 +716,87 @@ export const AppProvider = ({ children }) => {
         navigate("/")
     }
 
+    const [openCart, setOpenCart] = useState(false)
+
+    const createNewClient = async(clientEmail) => {
+        try {
+            const response = await fetch(`${apis.backend}/api/clients/new-client/${clientEmail}`,{
+                method: "POST"
+            })
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No fue posible crear el usuario",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }
+    }
+
+    const verifyAuthCodeClients = async(authCode, clientEmail) => {
+        try {
+            const response = await fetch(`${apis.backend}/api/clients/verify-auth-code?otpCode=${authCode}&client_email=${clientEmail}`,{
+                method: "PUT"
+            })
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No fue posible verificar el codigo",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }
+    }
+
+    const loginClient = async(client_email) => {
+        try {
+            const response = await fetch(`${apis.backend}/api/clients/login-client/${client_email}`,{
+                method: "PUT"
+            })
+            if(response.status === 404){
+                notification.info({
+                    message: "No se encontro ningun usuario con ese correo",
+                })
+
+                return false
+            }
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No fue posible iniciar sesion",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }
+    }
+
     const appIsReady = useRef(false)
+    const [initApp, setInitApp] = useState(false)
     useEffect(()=>{
         (async()=>{
             if(!appIsReady.current && loginData.id){ 
+                
                 const hiddenMessage = message.loading("Iniciando sistema", 0)
                 appIsReady.current = true
                 try {
@@ -740,8 +819,11 @@ export const AppProvider = ({ children }) => {
         })()
     },[loginData])
     
+    const location = useLocation().pathname
+    
     useEffect(() => {
-        const session_data = localStorage.getItem("session_data")
+        if(!location.includes("/login-admin") && (location.includes("admin") || location.includes("/user"))){
+            const session_data = localStorage.getItem("session_data")
         
         if (!session_data) {
             navigate("/")
@@ -774,13 +856,10 @@ export const AppProvider = ({ children }) => {
         }
         setLoginData(data)
         if (data?.admin) setIsAdmin(true)
-    }, [])
+        }
+    }, [location])
     
 
-    useEffect(()=>{
-        if(isAdmin) navigate("/admin-dashboard")
-        
-    },[isAdmin, loginData])
 
     const [width, setWidth] = useState(window.innerWidth)
 
@@ -794,6 +873,8 @@ export const AppProvider = ({ children }) => {
         }
     },[])
 
+
+    if (initApp) return <Loader loaderSpinner={loaderSpinner} />;
     return (
         <AppContext.Provider
             value={{
@@ -806,11 +887,16 @@ export const AppProvider = ({ children }) => {
                 editPromotion, saveBanner, banners, deleteBanner, handleBanner, bannerId, editingBanner, editBanner, editPageColors,
                 headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
                 subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw, getAllBanners,
-                closeSession
+                closeSession, getPageColors, setInitApp, setOpenCart, openCart,
+                loginClient, verifyAuthCodeClients, createNewClient
+                
             }}
+            
         >
-            {children}
+            
             {editingAdminPsw && <EditorModal/>}
+
+            {children}
         </AppContext.Provider>
     )
 }
