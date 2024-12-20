@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { Button, Flex, Form, Input, notification, Radio, Space, Switch } from "antd"
+import React, { useState } from "react"
+import { Button,Form, Input} from "antd"
 import "./Login.css"
 import { useNavigate } from "react-router-dom"
 import { useAppContext } from "../../../AppContext"
@@ -35,7 +35,7 @@ function Login() {
                 setAdminVerified(true)
             }
 
-            if (result) navigate("/")
+            
         } catch (error) {
             console.log(error)
         } finally {
