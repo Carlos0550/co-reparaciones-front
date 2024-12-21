@@ -5,7 +5,7 @@ import { useAppContext } from '../../../../AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { resizeAndConvertImages } from '../../../../utils/ResizeImages';
 
-import { EditorState, ContentState, convertToRaw, convertFromHTML } from 'draft-js';
+import { EditorState, ContentState, convertToRaw, convertFromHTML, Modifier } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -21,20 +21,35 @@ function AddProducts() {
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
     const onEditorStateChange = (newState) => {
-        const contentState = newState.getCurrentContent();
-        const text = contentState.getPlainText()
-        console.log(text)
-        if(text.trim() === ""){
-            const emptyContentState = ContentState.createFromText(" ")
-            setEditorState(EditorState.createWithContent(emptyContentState));
-        }else{
-            setEditorState(newState);
-        }
+        setEditorState(newState);
     };
 
     const handleDeleteImage = (file) => {
         setFileList((prevList) => prevList.filter((item) => item.name.split(".")[0] !== file.name.split(".")[0]));
     }
+
+    const handleKeyCommand = (command, editorState) => {
+        if (command === 'backspace') {
+          const contentState = editorState.getCurrentContent();
+          const selection = editorState.getSelection();
+          const startKey = selection.getStartKey();
+      
+          const block = contentState.getBlockForKey(startKey);
+          const text = block.getText();
+      
+          // Si el bloque está vacío, inserta uno nuevo
+          if (text.trim() === '') {
+            const newContentState = Modifier.insertText(
+              contentState,
+              selection,
+              ' '
+            );
+            setEditorState(EditorState.push(editorState, newContentState, 'insert-characters'));
+            return 'handled';
+          }
+        }
+        return 'not-handled';
+      };
 
     const beforeUpload = async (file) => {
         const isImage = file.type.startsWith("image/")
@@ -238,7 +253,7 @@ function AddProducts() {
                     autoCapitalize="off"
                     editorClassName='editor-class'
                     handlePastedText={()=> false}
-
+                    handleKeyCommand={handleKeyCommand}
                 />
 
             </div>
