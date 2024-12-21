@@ -1,23 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, DatePicker, Flex, Form, Input, message, notification, Select, Space, Switch, Upload } from 'antd'
-import { EditorState, ContentState, convertToRaw, convertFromHTML } from 'draft-js';
-
-import { Editor } from 'react-draft-wysiwyg';
-import { stateToHTML } from 'draft-js-export-html';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 import { useAppContext } from '../../../../AppContext';
 import { resizeAndConvertImages } from '../../../../utils/ResizeImages';
-const { Dragger } = Upload
+import "react-quill/dist/quill.snow.css";
+
+import ReactQuill from "react-quill"
 
 import dayjs from "dayjs"
 
-import { InboxOutlined } from "@ant-design/icons";
+import { InboxOutlined, PlusOutlined } from "@ant-design/icons";
 import "./PromotionForm.css"
 function PromotionForm() {
     const [form] = Form.useForm();
 
-    const [editorState, setEditorState] = useState(EditorState.createEmpty());
+    const [editorState, setEditorState] = useState("");
     const [isSinglePromotion, setIsSinglePromotion] = useState(false)
 
     const { productsList,
@@ -47,7 +44,6 @@ function PromotionForm() {
     const [productsListTotal, setProductsListTotal] = useState(0)
     const onFinish = async (values) => {
         setSaving(true)
-        const htmlDescription = stateToHTML(editorState.getCurrentContent());
         const formData = new FormData();
         const promotionType = isSinglePromotion ? "single" : "multiple";
 
@@ -59,7 +55,7 @@ function PromotionForm() {
 
         formData.append("promotion_type", promotionType);
         formData.append("promotion_discount", promotion_discount);
-        formData.append("promotion_description", htmlDescription);
+        formData.append("promotion_description", editorState);
         formData.append("product_id", isSinglePromotion ? selectedProduct : "");
         formData.append("promotion_start_date", dayjs(promotionStartDate).format("YYYY-MM-DD"));
         formData.append("promotion_end_date", dayjs(promotionEndsDate).format("YYYY-MM-DD"));
@@ -82,13 +78,13 @@ function PromotionForm() {
             "promotion_state", 
             dayjs().isAfter(dayjs(promotionStartDate)) || dayjs().isSame(dayjs(promotionStartDate))
           );
-          
+        console.log(formData)
         const result = editingPromotion ? await editPromotion(formData) : await savePromotion(formData)
         setSaving(false)
         if (result) {
             form.resetFields()
             setFileList([])
-            setEditorState(EditorState.createEmpty())
+            setEditorState("")
             setTotalProducts(0)
             setProducts([])
             setProductsListTotal(0)
@@ -97,12 +93,14 @@ function PromotionForm() {
         }
 
     };
-
+useEffect(()=>{
+    console.log(fileList)
+},[fileList])
     const handleCancelEdit = () =>{
         handlePromotions()
         form.resetFields()
         setFileList([])
-        setEditorState(EditorState.createEmpty())
+        setEditorState("")
         setTotalProducts(0)
         setProducts([])
         setProductsListTotal(0)
@@ -111,50 +109,8 @@ function PromotionForm() {
     }
     const onEditorStateChange = (newState) => {
         setEditorState(newState);
-        const rawContext = convertToRaw(newState.getCurrentContent());
-        const plainText = rawContext.blocks.map(block => block.text).join('\n');
-        form.setFieldsValue({
-            promotion_description: plainText,
-        });
     };
 
-    const uploadProps = useMemo(() => ({
-        name: "file",
-        multiple: true,
-        beforeUpload: async (file) => {
-            if (fileList.length >= 3) {
-                message.warning("Solo puedes subir hasta 3 imagenes")
-                return false;
-            }
-            try {
-
-                const [compressedFiles] = await resizeAndConvertImages([file])
-
-                const newFileList = {
-                    uid: compressedFiles.uid,
-                    name: compressedFiles.name,
-                    originFileObj: compressedFiles,
-                    editing: false,
-                    thumbUrl: URL.createObjectURL(compressedFiles)
-                }
-                setFileList((prevList) => [...prevList, newFileList]);
-            } catch (error) {
-                console.error('Error al redimensionar la imagen:', error);
-            }
-            return false
-        },
-        fileList,
-        onRemove: (file) => {
-            setFileList((prevList) => prevList.filter((item) => item.name.split(".")[0] !== file.name.split(".")[0]));
-        }
-    }), [fileList])
-
-    useEffect(() => {
-        form.setFieldsValue({
-            promotion_images: fileList
-        })
-
-    }, [fileList])
 
     const handleVerifyProducts = (products) => {
         
@@ -218,11 +174,7 @@ function PromotionForm() {
             
             const htmlDescription = selectedPromo.promotion_data?.promotion_description
 
-            const blockFromHTML = convertFromHTML(htmlDescription || "<div></div>");
-            const contentState = ContentState.createFromBlockArray(blockFromHTML.contentBlocks, blockFromHTML.entityMap);
-            const editorState = EditorState.createWithContent(contentState);
-
-            setEditorState(editorState)
+            setEditorState(htmlDescription)
 
             setPromotionStartDate(dayjs(selectedPromo.promotion_starts))
             setPromotionEndsDate(dayjs(selectedPromo.promotion_ends))
@@ -271,6 +223,36 @@ function PromotionForm() {
             setTotalProducts(discountPrice)
         }
     }, [isSinglePromotion, promotion_discount, selectedProduct, productsListTotal, productsList]);
+
+    const handleDeleteImage = (file) => {
+        setFileList((prevList) => prevList.filter((item) => item.name.split(".")[0] !== file.name.split(".")[0]));
+    }
+    const beforeUpload = async (file) => {
+            const isImage = file.type.startsWith("image/")
+            if (!isImage) {
+                form.setFields([
+                    {
+                        name: "promotion_images",
+                        errors: ["Solo se permiten archivos de imagen"]
+                    }
+                ]);
+                return Upload.LIST_IGNORE
+            } else {
+                const [processedImages] = await resizeAndConvertImages([file])
+    
+                const newFileList = {
+                    uid: processedImages.uid,
+                    name: processedImages.name,
+                    originFileObj: processedImages,
+                    editing: false,
+                    thumbUrl: URL.createObjectURL(processedImages)
+                }
+                setFileList((prevList) => [...prevList, newFileList]);
+            }
+            return false
+        }
+    
+    
     
     return (
         <Form
@@ -438,38 +420,25 @@ function PromotionForm() {
                 label="Descripcion de la promoción"
 
             >
-                <Editor
-                    editorState={editorState}
-                    onEditorStateChange={onEditorStateChange}
-                    placeholder='Ingrese la descripción del producto'
-                    toolbar={{
-                        options: ['inline', 'list', 'textAlign', 'link', 'history'],
-                    }}
-                />
+                <ReactQuill
+                                    value={editorState}
+                                    onChange={onEditorStateChange}
+                                    theme='snow'
+                                    placeholder='Ingrese una descripción'
+                                />
             </Form.Item>
-
-            <div>
-                <p className='preview_p'>Vista previa</p>
-                <div className='preview_images'>
-                    {fileList.map((file) => (
-                        <div key={file.name} className='preview_image'>
-                            <img src={file.thumbUrl} alt={file.name} />
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             <Form.Item
                 name="promotion_images"
                 label="Imágenes"
-                help="La primer imagen será la portada de la promoción"
+                tooltip="La primer imagen será la portada de la promoción y puedes subir hasta 4 imagenes"
                 rules={
                     [
                         { required: true, message: 'Por favor suba al menos una imagen' },
                         {
                             validator: (_, value) => {
 
-                                if (value && value.length > 3) return Promise.reject("Solo puedes subir hasta 3 imágenes")
+                                if (value && value.length > 4) return Promise.reject("Solo puedes subir hasta 4 imágenes")
                                 return Promise.resolve()
                             }
                         }
@@ -479,15 +448,16 @@ function PromotionForm() {
 
                 getValueFromEvent={(e) => e && e.fileList}
             >
-                <Dragger {...uploadProps} fileList={fileList} onPreview={(pre) => URL.createObjectURL(pre.originFileObj)} >
-                    <p className="ant-upload-drag-icon">
-                        <InboxOutlined />
-                    </p>
-                    <p className="ant-upload-text">Haga clic o arrastre archivos a esta área para subir</p>
-                    <p className="ant-upload-hint">
-                        Soporte para una o varias imágenes. No suba archivos prohibidos o datos confidenciales.
-                    </p>
-                </Dragger>
+                 <Upload
+                    accept='image/jpeg, image/png'
+                    listType='picture-card'
+                    fileList={fileList}
+                    onRemove={handleDeleteImage}
+                    beforeUpload={beforeUpload}
+                    multiple
+                >
+                    {fileList.length < 3 && <Button icon={<PlusOutlined />} />}
+                </Upload>
             </Form.Item>
 
             <Form.Item>

@@ -4,6 +4,7 @@ import './PromotionTable.css'
 import { useAppContext } from '../../../../AppContext'
 import dayjs from "dayjs"
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import ViewDescriptionsModal from '../../../../Components/Modales/ViewDescriptionsModal'
 function PromotionsTable() {
     const { promotions, productsList, getAllPromotions, deletePromotion,handlePromotions}  = useAppContext()
     const [deleting, setDeleting] = useState(false)
@@ -17,6 +18,10 @@ function PromotionsTable() {
     const handleEditPromotion = (promotionId) => {
         handlePromotions(promotionId,true)
     }
+
+    const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
+    const [modalDescription, setModalDescription] = useState("");
+
     const tableColumns = [
         {
            render:(_,record) => {
@@ -47,14 +52,10 @@ function PromotionsTable() {
             render:(_,record) => {
                 const description = record.promotion_data.promotion_description
                 return(
-                    <Popconfirm
-                        description={<div dangerouslySetInnerHTML={{ __html: description }}></div>}
-                        okText={"Cerrar"}
-                        overlayStyle={{ maxWidth: "50%" }}
-                        cancelButtonProps={{ style: { display: "none" } }}
-                    >
-                        <Button>Ver descripción</Button>
-                    </Popconfirm>
+                    <Button onClick={()=>{
+                       setModalDescription(description)
+                       setOpenDescriptionModal(true) 
+                    }}>Ver descripción</Button>
                 )
             }
         },
@@ -102,6 +103,8 @@ function PromotionsTable() {
             )
         }
     ]
+
+    
   return (
     <React.Fragment>
         <Table
@@ -110,6 +113,14 @@ function PromotionsTable() {
             scroll={{ x: "max-content" }}
             loading={deleting}
         />
+
+        {openDescriptionModal && (
+            <ViewDescriptionsModal
+                
+                closeModal={() => setOpenDescriptionModal(false)}
+                description={modalDescription}
+            />
+        )}
     </React.Fragment>
   )
 }
