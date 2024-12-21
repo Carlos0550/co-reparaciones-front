@@ -34,6 +34,29 @@ function ClientLayout() {
         }
     },[])
 
+    const headerContent = [
+        {
+            id: 1,
+            name: "📱 Celulares"
+        },
+        {
+            id: 2,
+            name: "🔋 Accesorios de Celulares"
+        },
+        {
+            id: 3,
+            name: "🎧 Accesorios de Audio"
+        },
+        {
+            id: 4,
+            name: "📱 Accesorios de Celulares"
+        },
+        {
+            id: 5,
+            name: "🔌 Cables y Adaptadores"
+        }
+    ]
+
     return (
         <React.Fragment>
             <header className="header" >
@@ -42,7 +65,7 @@ function ClientLayout() {
                         <img src={Logo} />
                     </picture>
                     <ul className="navbar-ul">
-                        {Array.isArray(categories) && width > 768 && categories.slice(0, (() => {
+                        {Array.isArray(headerContent) && width > 768 && headerContent.slice(0, (() => {
                             if (width > 1200) return Math.floor(categories.length * 0.9);
                             if (width > 1000) return Math.floor(categories.length * 0.8);
                             if (width > 868) return Math.floor(categories.length * 0.6);
@@ -50,7 +73,7 @@ function ClientLayout() {
                             return 0;
                         })()).map((cat, idx) => (
                             <li className="navbar-li" key={cat.id || idx}>
-                                <p className="navbar-p" style={{ color: paragraphColor || "#000000" }}>{cat?.category_name}</p>
+                                <p className="navbar-p" style={{ color: paragraphColor || "#000000" }}>{cat?.name}</p>
                             </li>
                         ))}
                     </ul>

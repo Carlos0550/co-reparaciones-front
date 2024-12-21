@@ -33,10 +33,7 @@ function CategoriesTable() {
             const hiddenMessage = message.loading("Cargando categorías...")
             await getCategories()
             hiddenMessage()
-            notification.info({
-                message: "Lista de categorias actualizada.",
-                description: `Se encontraron ${categories.length} categorías`,
-            })
+            
         }} style={{marginBottom: "10px"}}>Refrescar</Button>
         <Table
         columns={columns}
