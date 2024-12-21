@@ -215,6 +215,7 @@ function AddProducts() {
             </Space>
             
             <p>Ingresa una descripción</p>
+            <div onTouchStart={(e)=> e.stopPropagation()}>
             <Editor
                     editorState={editorState}
                     onEditorStateChange={onEditorStateChange}
@@ -233,6 +234,7 @@ function AddProducts() {
 
                 />
 
+            </div>
             <Form.Item
                 name="product_images"
                 label="Imágenes"
