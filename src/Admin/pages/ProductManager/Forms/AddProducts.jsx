@@ -23,8 +23,8 @@ function AddProducts() {
     const onEditorStateChange = (newState) => {
         const contentState = newState.getCurrentContent();
         const text = contentState.getPlainText()
-
-        if(text.trim() === "<p><br></p>"){
+        console.log(text)
+        if(text.trim() === ""){
             const emptyContentState = ContentState.createFromText("")
             setEditorState(EditorState.createWithContent(emptyContentState));
         }else{
