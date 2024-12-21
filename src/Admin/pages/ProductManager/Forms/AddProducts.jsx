@@ -21,8 +21,15 @@ function AddProducts() {
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
     const onEditorStateChange = (newState) => {
-        setEditorState(newState);
+        const contentState = newState.getCurrentContent();
+        const text = contentState.getPlainText()
 
+        if(text.trim() === "<p><br></p>"){
+            const emptyContentState = ContentState.createFromText("")
+            setEditorState(EditorState.createWithContent(emptyContentState));
+        }else{
+            setEditorState(newState);
+        }
     };
 
     const handleDeleteImage = (file) => {
