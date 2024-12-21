@@ -13,13 +13,10 @@
     "@ant-design/icons": "^5.5.2",
     "antd": "^5.22.3",
     "browser-image-compression": "^2.0.2",
-    "draft-js": "^0.11.7",
-    "draft-js-export-html": "^1.4.1",
     "prop-types": "^15.8.1",
     "quill": "^2.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-draft-wysiwyg": "^1.15.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.0.2",
     "uuid": "^11.0.3"
