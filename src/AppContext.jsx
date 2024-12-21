@@ -456,10 +456,12 @@ export const AppProvider = ({ children }) => {
         try {
             const response = await fetch(`${apis.backend}/api/promotions/get-promotions`)
             const responseData = await processRequests(response)
-            if(response.status === 404) return;
+            if(response.status === 404){
+                setPromotions([])
+                return
+            } ;
             if(!response.ok) throw new Error(responseData.msg)
             if(responseData.promotions.length > 0) setPromotions(responseData.promotions)
-            else setPromotions([])
             return true
         } catch (error) {
             console.log(error)
