@@ -9,7 +9,6 @@ import { ClockCircleOutlined, GithubOutlined, MailOutlined, ShoppingCartOutlined
 import RoadSVg from "../../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg"
 import ProductDetailsView from "../views/ProductDetailsView/ProductDetailsView.jsx"
 import CartView from "../views/CartView/CartView.jsx"
-import Loader from "../../utils/Loader.jsx"
 import Logo from "../../../public/logo.jpeg"
 function ClientLayout() {
     const { categories,
@@ -17,13 +16,8 @@ function ClientLayout() {
         footerColor,
         headerColor,
         contentColor,
-        getCategories,
-        getProducts,
-        getAllPromotions,
-        getAllBanners,
-        getPageColors,
         width,
-        
+        initPage,
         banners,
         productsList,
         setOpenCart,
@@ -32,26 +26,13 @@ function ClientLayout() {
 
     const navigate = useNavigate()
 
-    const [initApp, setInitApp] = useState(false)
-    const alreadyGet = useRef(false)
-    useEffect(() => {
-        if (!alreadyGet.current) {
-            setInitApp(true)
-            const initPage = async () => {
-                alreadyGet.current = true
-                await Promise.all([
-                    getCategories(),
-                    getProducts(),
-                    getAllPromotions(),
-                    getAllBanners(),
-                    getPageColors()
-                ]);
-            }
+    const alreadyInit = useRef(false)
+    useEffect(()=>{
+        if(!alreadyInit.current){
+            alreadyInit.current = true
             initPage()
-            setInitApp(false)
         }
-    }, [])
-
+    },[])
 
     return (
         <React.Fragment>
@@ -124,9 +105,7 @@ function ClientLayout() {
                 openCart && <Drawer onClose={() => setOpenCart(false)} open={openCart} children={<CartView />}/>
             }
 
-            {
-                initApp && <Loader/>
-            }
+            
         </React.Fragment>
     )
 }

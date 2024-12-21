@@ -792,32 +792,36 @@ export const AppProvider = ({ children }) => {
     }
 
     const appIsReady = useRef(false)
-    const [initApp, setInitApp] = useState(false)
+    const [isInitialising, setIsInitialising] = useState(false)
+    const initPage = async() => {
+        console.log("Comienza a cargar los datos")
+        setIsInitialising(true)
+        try {
+            await Promise.all([
+               getCategories(),
+               getProducts(),
+               getAllPromotions(),
+               getAllBanners(),
+               getPageColors()
+            ]);
+            
+         } catch (error) {
+            message.error("Hubo un error al cargar los datos")
+            console.error(error)
+         }finally{
+            console.log("Termina de cargar los datos")
+            setIsInitialising(false)
+         } 
+    }
+
     useEffect(()=>{
         (async()=>{
             if(!appIsReady.current && loginData.id){ 
-                
-                const hiddenMessage = message.loading("Iniciando sistema", 0)
                 appIsReady.current = true
-                try {
-                    await Promise.all([
-                       getCategories(),
-                       getProducts(),
-                       getAllPromotions(),
-                       getAllBanners(),
-                       getPageColors()
-                    ]);
-                    
-                 } catch (error) {
-                    message.error("Hubo un error al cargar los datos")
-                    console.error(error)
-                 }finally{
-                    hiddenMessage()
-                    message.success("Sistema listo", 2)
-                 } 
+                initPage()
             }
         })()
-    },[loginData])
+    },[])
     
     const location = useLocation().pathname
     
@@ -873,8 +877,6 @@ export const AppProvider = ({ children }) => {
         }
     },[])
 
-
-    if (initApp) return <Loader loaderSpinner={loaderSpinner} />;
     return (
         <AppContext.Provider
             value={{
@@ -887,8 +889,8 @@ export const AppProvider = ({ children }) => {
                 editPromotion, saveBanner, banners, deleteBanner, handleBanner, bannerId, editingBanner, editBanner, editPageColors,
                 headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
                 subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw, getAllBanners,
-                closeSession, getPageColors, setInitApp, setOpenCart, openCart,
-                loginClient, verifyAuthCodeClients, createNewClient
+                closeSession, getPageColors, setOpenCart, openCart,
+                loginClient, verifyAuthCodeClients, createNewClient, isInitialising, initPage
                 
             }}
             
@@ -896,6 +898,8 @@ export const AppProvider = ({ children }) => {
             
             {editingAdminPsw && <EditorModal/>}
 
+            {isInitialising && <Loader/>}
+            
             {children}
         </AppContext.Provider>
     )

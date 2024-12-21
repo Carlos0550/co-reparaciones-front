@@ -1,5 +1,5 @@
 import React from 'react';
-import loaderSpinner from "../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg"
+import loaderSpinner from "../../public/90-ring-with-bg.svg"
 const Loader = () => {
     return (
         <div 
@@ -10,10 +10,11 @@ const Loader = () => {
                 justifyContent: "center", 
                 alignItems: "center", 
                 backgroundColor: "#f0f0f0", 
-                
+                position: "fixed",
+                zIndex: 999
             }}
         >
-            <img src={loaderSpinner} alt="Cargando..." width={34} />
+            <img src={loaderSpinner} alt="Cargando..." width={54} />
         </div>
     );
 };
