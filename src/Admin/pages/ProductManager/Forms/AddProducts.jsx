@@ -5,7 +5,7 @@ import { useAppContext } from '../../../../AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { resizeAndConvertImages } from '../../../../utils/ResizeImages';
 
-import { EditorState, ContentState, convertToRaw, convertFromHTML, Modifier } from 'draft-js';
+import { EditorState, ContentState, convertToRaw, convertFromHTML, Modifier, SelectionState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -19,20 +19,26 @@ function AddProducts() {
 
     const [fileList, setFileList] = useState([]);
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
-    const handleEditorStateChange = (newState) => {
+    const insertEmptyParagraph = (editorState) => {
+        const contentState = editorState.getCurrentContent();
+        const selectionState = editorState.getSelection();
+      
+        const newContentState = Modifier.splitBlock(contentState, selectionState);
+      
+        return EditorState.push(editorState, newContentState, 'split-block');
+      };
+      
+      const handleEditorStateChange = (newState) => {
         const contentState = newState.getCurrentContent();
         const text = contentState.getPlainText();
       
-        // Si el texto está vacío, reinicia el estado del editor
         if (text.trim() === '') {
-          const emptyContentState = ContentState.createFromText('');
-          setEditorState(EditorState.createWithContent(emptyContentState));
+          const updatedState = insertEmptyParagraph(editorState);
+          setEditorState(updatedState);
         } else {
           setEditorState(newState);
         }
       };
-
     const handleDeleteImage = (file) => {
         setFileList((prevList) => prevList.filter((item) => item.name.split(".")[0] !== file.name.split(".")[0]));
     }
