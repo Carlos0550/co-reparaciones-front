@@ -20,9 +20,18 @@ function AddProducts() {
     const [fileList, setFileList] = useState([]);
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
-    const onEditorStateChange = (newState) => {
-        setEditorState(newState);
-    };
+    const handleEditorStateChange = (newState) => {
+        const contentState = newState.getCurrentContent();
+        const text = contentState.getPlainText();
+      
+        // Si el texto está vacío, reinicia el estado del editor
+        if (text.trim() === '') {
+          const emptyContentState = ContentState.createFromText('');
+          setEditorState(EditorState.createWithContent(emptyContentState));
+        } else {
+          setEditorState(newState);
+        }
+      };
 
     const handleDeleteImage = (file) => {
         setFileList((prevList) => prevList.filter((item) => item.name.split(".")[0] !== file.name.split(".")[0]));
@@ -240,7 +249,7 @@ function AddProducts() {
             <div onTouchStart={(e)=> e.stopPropagation()}>
             <Editor
                     editorState={editorState}
-                    onEditorStateChange={onEditorStateChange}
+                    onEditorStateChange={handleEditorStateChange}
                     placeholder="Ingrese la descripción del producto"
                     toolbar={{
                         options: ["inline", "list", "textAlign", "link", "history"],
