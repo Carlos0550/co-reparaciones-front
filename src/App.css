@@ -14,5 +14,4 @@ h1,h2,h3{
   min-height: 200px; 
   cursor: text;
   overflow-y: auto;
-  -webkit-user-modify: read-write-plaintext-only; 
 }

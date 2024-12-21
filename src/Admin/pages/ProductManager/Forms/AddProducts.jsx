@@ -226,8 +226,6 @@ function AddProducts() {
                         }
                     }}
                     spellCheck={false}
-                    autoCorrect="off"
-                    autoCapitalize="off"
                     editorClassName='editor-class'
                     handlePastedText={()=> false}
 
