@@ -4,11 +4,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useAppContext } from '../../../../AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { resizeAndConvertImages } from '../../../../utils/ResizeImages';
+import "react-quill/dist/quill.snow.css";
 
-import { EditorState, ContentState, convertToRaw, convertFromHTML, Modifier, SelectionState } from 'draft-js';
-import { stateToHTML } from 'draft-js-export-html';
-import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import ReactQuill from "react-quill"
 
 function AddProducts() {
     const [form] = Form.useForm();
@@ -18,53 +16,15 @@ function AddProducts() {
     } = useAppContext();
 
     const [fileList, setFileList] = useState([]);
-    const [editorState, setEditorState] = useState(EditorState.createEmpty());
-    const insertEmptyParagraph = (editorState) => {
-        const contentState = editorState.getCurrentContent();
-        const selectionState = editorState.getSelection();
-      
-        const newContentState = Modifier.splitBlock(contentState, selectionState);
-      
-        return EditorState.push(editorState, newContentState, 'split-block');
-      };
-      
-      const handleEditorStateChange = (newState) => {
-        const contentState = newState.getCurrentContent();
-        const text = contentState.getPlainText();
-      
-        if (text.trim() === '') {
-          const updatedState = insertEmptyParagraph(editorState);
-          setEditorState(updatedState);
-        } else {
-          setEditorState(newState);
-        }
-      };
+    const [editorState, setEditorState] = useState("");
+
+    const onEditorStateChange = (newState) => {
+        setEditorState(newState);
+    };
+
     const handleDeleteImage = (file) => {
         setFileList((prevList) => prevList.filter((item) => item.name.split(".")[0] !== file.name.split(".")[0]));
     }
-
-    const handleKeyCommand = (command, editorState) => {
-        if (command === 'backspace') {
-          const contentState = editorState.getCurrentContent();
-          const selection = editorState.getSelection();
-          const startKey = selection.getStartKey();
-      
-          const block = contentState.getBlockForKey(startKey);
-          const text = block.getText();
-      
-          // Si el bloque está vacío, inserta uno nuevo
-          if (text.trim() === '') {
-            const newContentState = Modifier.insertText(
-              contentState,
-              selection,
-              ' '
-            );
-            setEditorState(EditorState.push(editorState, newContentState, 'insert-characters'));
-            return 'handled';
-          }
-        }
-        return 'not-handled';
-      };
 
     const beforeUpload = async (file) => {
         const isImage = file.type.startsWith("image/")
@@ -94,16 +54,8 @@ function AddProducts() {
     const [saving, setSaving] = useState(false);
     const onFinish = async (values) => {
         setSaving(true)
-        const htmlDescription = stateToHTML(editorState.getCurrentContent());
-        if(htmlDescription === "<p><br></p>"){
-            notification.error({
-                message: 'Error',
-                description: 'La descripcion del producto no puede estar vacia',
-                placement: "topRight"
-            })
-            setSaving(false)
-            return
-        }
+        console.log("Valores del formulario: ",values)
+        console.log("Descripciones: ", editorState)
 
         const formData = new FormData();
         for (const key in values) {
@@ -111,7 +63,7 @@ function AddProducts() {
                 formData.append(key, values[key] || "");
             }
         }
-        formData.append('product_description', htmlDescription);
+        formData.append('product_description', editorState);
 
         const imagesWithEdit = fileList.map((file) => ({
             image_name: file.name,
@@ -127,23 +79,23 @@ function AddProducts() {
 
         formData.append("imagesWithEdit", JSON.stringify(imagesWithEdit));
 
-        // const result = editingProduct
-        //     ? await editProducts(formData, productId)
-        //     : await saveProduct(formData)
+        const result = editingProduct
+            ? await editProducts(formData, productId)
+            : await saveProduct(formData)
 
-        // if (result) {
-        //     message.success(editingProduct
-        //         ? 'Producto editado con éxito'
-        //         : 'Producto registrado con éxito'
-        //     );
+        if (result) {
+            message.success(editingProduct
+                ? 'Producto editado con éxito'
+                : 'Producto registrado con éxito'
+            );
 
-        //     form.resetFields()
-        //     setFileList([])
-        //     setEditorState(EditorState.createEmpty())
-        //     message.loading('Actualizando lista de productos...')
-        //     await getProducts()
-        //     handleProducts()
-        // }
+            form.resetFields()
+            setFileList([])
+            setEditorState("")
+            message.loading('Actualizando lista de productos...')
+            await getProducts()
+            handleProducts()
+        }
         setSaving(false)
     };
 
@@ -158,10 +110,8 @@ function AddProducts() {
                 product_stock: selectedProduct.stock,
 
             })
-            const blockFromHTML = convertFromHTML(selectedProduct.product_description);
-            const contentState = ContentState.createFromBlockArray(blockFromHTML.contentBlocks, blockFromHTML.entityMap);
-            const editorState = EditorState.createWithContent(contentState);
-            setEditorState(editorState)
+        
+            setEditorState(selectedProduct.product_description)
 
             const formattedImages = selectedProduct.images.map((image) => ({
                 uid: uuidv4(),
@@ -179,7 +129,7 @@ function AddProducts() {
         } else {
             form.resetFields()
             setFileList([])
-            setEditorState(EditorState.createEmpty())
+            setEditorState("")
 
         }
     }, [editingProduct, productId])
@@ -253,23 +203,15 @@ function AddProducts() {
             
             <p>Ingresa una descripción</p>
             <div onTouchStart={(e)=> e.stopPropagation()}>
-            <Editor
-                    editorState={editorState}
-                    onEditorStateChange={handleEditorStateChange}
-                    placeholder="Ingrese la descripción del producto"
-                    toolbar={{
-                        options: ["inline", "list", "textAlign", "link", "history"],
-                        inline: {
-                            options: ["bold", "italic", "underline"]
-                        }
-                    }}
-                    spellCheck={false}
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    editorClassName='editor-class'
-                    handlePastedText={()=> false}
-                    handleKeyCommand={handleKeyCommand}
+            
+            <Form.Item>
+                <ReactQuill
+                    value={editorState}
+                    onChange={onEditorStateChange}
+                    theme='snow'
+                    placeholder='Ingrese una descripción'
                 />
+            </Form.Item>
 
             </div>
             <Form.Item
