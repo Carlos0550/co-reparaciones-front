@@ -135,7 +135,7 @@ export const AppProvider = ({ children }) => {
             };
             if(!response.ok) throw new Error(responseData.msg)
             if(responseData.categories.length > 0) setCategories(responseData.categories)
-            else setCategories([])
+            
             return true
         } catch (error) {
             console.log(error)
@@ -249,7 +249,9 @@ export const AppProvider = ({ children }) => {
             const responseData = await processRequests(response)
             if(!response.ok) throw new Error(responseData.msg)
             message.success(`${responseData.msg}`)
+            const hiddenMessage = message.loading("Actualizando productos...",0)
             await getProducts()
+            hiddenMessage()
             return true
         } catch (error) {
             console.log(error)
