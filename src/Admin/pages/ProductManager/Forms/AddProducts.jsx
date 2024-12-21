@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Upload, message, Button, Space } from 'antd';
+import { Form, Input, Select, Upload, message, Button, Space, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useAppContext } from '../../../../AppContext';
 import { v4 as uuidv4 } from 'uuid';
@@ -58,6 +58,16 @@ function AddProducts() {
     const onFinish = async (values) => {
         setSaving(true)
         const htmlDescription = stateToHTML(editorState.getCurrentContent());
+        if(htmlDescription === "<p><br></p>"){
+            notification.error({
+                message: 'Error',
+                description: 'La descripcion del producto no puede estar vacia',
+                placement: "topRight"
+            })
+            setSaving(false)
+            return
+        }
+
         const formData = new FormData();
         for (const key in values) {
             if (key !== "product_images" && key !== "product_description") {
@@ -80,23 +90,23 @@ function AddProducts() {
 
         formData.append("imagesWithEdit", JSON.stringify(imagesWithEdit));
 
-        const result = editingProduct
-            ? await editProducts(formData, productId)
-            : await saveProduct(formData)
+        // const result = editingProduct
+        //     ? await editProducts(formData, productId)
+        //     : await saveProduct(formData)
 
-        if (result) {
-            message.success(editingProduct
-                ? 'Producto editado con éxito'
-                : 'Producto registrado con éxito'
-            );
+        // if (result) {
+        //     message.success(editingProduct
+        //         ? 'Producto editado con éxito'
+        //         : 'Producto registrado con éxito'
+        //     );
 
-            form.resetFields()
-            setFileList([])
-            setEditorState(EditorState.createEmpty())
-            message.loading('Actualizando lista de productos...')
-            await getProducts()
-            handleProducts()
-        }
+        //     form.resetFields()
+        //     setFileList([])
+        //     setEditorState(EditorState.createEmpty())
+        //     message.loading('Actualizando lista de productos...')
+        //     await getProducts()
+        //     handleProducts()
+        // }
         setSaving(false)
     };
 
@@ -203,15 +213,10 @@ function AddProducts() {
                     )}
                 </Form.Item>
             </Space>
-
-            <Form.Item
-                name="product_description"
-                label="Descripción"
-
-                rules={[{ required: true, message: 'Por favor ingrese la descripción' }]}
-            >
-
-                <Editor
+            
+            <p>Ingresa una descripción</p>
+            <div onTouchStart={(e) => e.stopPropagation()}>
+            <Editor
                     editorState={editorState}
                     onEditorStateChange={onEditorStateChange}
                     placeholder="Ingrese la descripción del producto"
@@ -221,9 +226,14 @@ function AddProducts() {
                             options: ["bold", "italic", "underline"]
                         }
                     }}
+                    spellCheck={false}
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    editorClassName='editor-class'
+                    handlePastedText={()=> false}
 
                 />
-            </Form.Item>
+            </div>
 
             <Form.Item
                 name="product_images"
