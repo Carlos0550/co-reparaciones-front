@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import "./ProductsTable.css"
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
 import EditorModal from "../../../../Components/Modales/EditorModal"
-import ViewDescriptionsModal from "./ViewDescriptionsModal"
+import ViewDescriptionsModal from "../../../../Components/Modales/ViewDescriptionsModal"
 function ProductsTable() {
     const { getProducts, 
         productsList, 
