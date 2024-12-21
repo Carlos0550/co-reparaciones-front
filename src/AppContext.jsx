@@ -819,13 +819,12 @@ export const AppProvider = ({ children }) => {
     }
 
     useEffect(()=>{
-        (async()=>{
-            if(!appIsReady.current && loginData.id){ 
-                appIsReady.current = true
-                initPage()
-            }
-        })()
-    },[])
+        if(!appIsReady.current && loginData.id){ 
+            appIsReady.current = true
+            message.loading("Cargando datos...")
+            initPage()
+        }
+    },[loginData])
     
     const location = useLocation().pathname
     
