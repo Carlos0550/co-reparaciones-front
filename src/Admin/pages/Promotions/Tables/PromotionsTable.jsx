@@ -1,5 +1,5 @@
 import { Button, Popconfirm, Space, Table } from 'antd'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './PromotionTable.css'
 import { useAppContext } from '../../../../AppContext'
 import dayjs from "dayjs"
@@ -22,13 +22,14 @@ function PromotionsTable() {
     const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
     const [modalDescription, setModalDescription] = useState("");
 
+
     const tableColumns = [
         {
            render:(_,record) => {
                const images = record.images
                return(
                     <picture className='promotion-image-minified'>
-                        <img src={images[0].image} alt={record.image_name} />
+                        <img src={images[0]?.image} alt={record.image_name} />
                     </picture>
                )
            }
@@ -75,7 +76,7 @@ function PromotionsTable() {
                 const products = record?.promotion_data?.promotion_products_array
                 const singleProduct = productsList.find(prod => prod.id === record?.promotion_data.product_id)
                 return(
-                    <em>{singleProduct ? singleProduct?.product_name : products?.map(prod => `${prod.quantity} ${prod.productName}`).join(", ")}</em>
+                    <em>{singleProduct ? singleProduct?.product_name : products?.map(prod => `${prod.quantity} ${prod.name} ${parseFloat(prod.price).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}`).join(", ")}</em>
                 )
             }
         },{
