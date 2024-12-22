@@ -1,4 +1,3 @@
-import React, { useState, useContext } from "react";
 import { Button, DatePicker, Form, Input, Space, Select, Switch } from "antd";
 
 import { useAppContext } from "../../../../AppContext";
@@ -64,6 +63,8 @@ const PromotionForm = () => {
           format="DD/MM/YYYY"
           placeholder={["Inicio", "Fin"]}
           disabledDate={(current) => current && current < dayjs().startOf("day")}
+          getPopupContainer={(trigger) => trigger.parentNode} 
+          style={{ width: "100%"}} 
         />
       </Form.Item>
 
