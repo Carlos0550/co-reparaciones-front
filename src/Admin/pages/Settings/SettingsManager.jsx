@@ -46,7 +46,6 @@ function SettingsManager() {
 
 
   const columns = getSecurityAdminColumns()
-  console.log(loginData)
   const dataForTable = [
     {
       key: 0,
