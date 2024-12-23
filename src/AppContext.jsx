@@ -856,20 +856,71 @@ export const AppProvider = ({ children }) => {
     }
 
     const [clientInfo, setClientInfo] = useState([])
-    const retrieveClientInfo = async() => {
+    const retrieveClientInfo = async(neededData= false) => {
+        const session_data = localStorage.getItem("session_data")
+        const parsedSessionData = JSON.parse(session_data)
+        
         try {
-            const response = await fetch(`${apis.backend}/api/clients/retrieve-client-info?client_id=${encodeURI(loginData.id)}`,{
+            const response = await fetch(`${apis.backend}/api/clients/retrieve-client-info?client_id=${encodeURI(loginData.id || parsedSessionData.id)}`,{
                 method: "GET"
             })
             const responseData = await processRequests(response)
+
             if(!response.ok) throw new Error(responseData.msg)
-            message.success(`${responseData.msg}`)
+
             setClientInfo(responseData.client)
+            if(neededData) localStorage.setItem("client_info", JSON.stringify(responseData.client))
+            return true
+        } catch (error) {
+            console.log(error)
+            
+            return false
+        }
+    }
+
+    const purchaseProduct = async() => {
+        await retrieveClientInfo(true)
+        const formData = new FormData()
+        const cart = localStorage.getItem("current_cart")
+
+        const products = JSON.parse(cart)
+        
+        let processedProducts = []
+
+        if(products && products.length > 0){
+            products.forEach(element => {
+                productsList.forEach(prod => {
+                    if(prod.id === element.id){
+                        console.log(prod)
+                        processedProducts.push({
+                            id: prod.id,
+                            quantity: element.quantity,
+                            unit_price: prod.product_price,
+                            currency_id: 'ARS'
+                        })
+                    }
+                })
+            })
+        }
+
+        
+        formData.append("products", JSON.stringify(processedProducts))
+        try {
+            const response = await fetch(`${apis.backend}/api/checkout/create-payment`,{
+                method: "POST",
+                body: formData
+            })
+
+            const responseData = await processRequests(response)
+            
+            if(!response.ok) throw new Error(responseData.msg)
+            
+            document.location.href = responseData.init_point
             return true
         } catch (error) {
             console.log(error)
             notification.error({
-                message: "No fue posible guardar la informacion",
+                message: "No fue posible proceder con la compra.",
                 description: error.message,
                 duration: 5,
                 pauseOnHover: false,
@@ -880,7 +931,52 @@ export const AppProvider = ({ children }) => {
     }
 
     useEffect(()=>{
-        if(!appIsReady.current && loginData.id){ 
+        console.log(clientInfo)
+    },[clientInfo])
+    
+    const sendPurchaseConfirmation = async () => {
+        const clientData = localStorage.getItem("client_info");
+        const cart = localStorage.getItem("current_cart");
+        
+        if(!cart || !loginData || !loginData?.id) return navigate("/")
+
+        const products = JSON.parse(cart);
+        const formData = new FormData();
+
+        formData.append("products", JSON.stringify(products));
+        formData.append("client_data", clientData);
+    
+        try {
+            const response = await fetch(`${apis.backend}/api/admins/send-purchase-confirmation`, {
+                method: "POST",
+                body: formData,
+            });
+    
+            if (response.ok) {
+                console.log("Confirmación de compra enviada exitosamente.");
+                localStorage.removeItem("current_cart");
+            } else {
+                throw new Error("Error en la respuesta del servidor.");
+            }
+        } catch (error) {
+            console.error("Error al enviar la confirmación de compra:", error);
+    
+            notification.error({
+                message: "No pudimos enviarte tu comprobante de compra",
+                description:
+                    "Pero no te preocupes, tu compra fue procesada correctamente y nos pondremos en contacto cuanto antes.",
+                duration: 6,
+                pauseOnHover: false,
+            });
+        }
+    };
+    
+    
+    
+    
+
+    useEffect(()=>{
+        if(!appIsReady.current && loginData?.id && !location.includes("/payment")){ 
             appIsReady.current = true
             message.loading("Cargando datos...")
             initPage()
@@ -925,7 +1021,7 @@ export const AppProvider = ({ children }) => {
             let data;
             try {
                 data = JSON.parse(session_data);
-                console.log("checkSession: ", data)
+                
             } catch (error) {
                 console.error("Error parsing session data:", error);
                 localStorage.removeItem("session_data");
@@ -936,7 +1032,8 @@ export const AppProvider = ({ children }) => {
             console.log("Current time in Buenos Aires:", argentinaTime.format());
 
             if(!data && location.includes("admin")) navigate("/")
-            await verifySessionUser(data.id, data.user_type);
+            if(location.includes("/payment")) return
+            await verifySessionUser(data?.id, data?.user_type);
 
             setLoginData(data);
             if (data?.admin) setIsAdmin(true);
@@ -976,7 +1073,7 @@ export const AppProvider = ({ children }) => {
                 subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw, getAllBanners,
                 closeSession, getPageColors, setOpenCart, openCart,
                 loginClient, verifyAuthCodeClients, createNewClient, isInitialising, initPage,
-                saveClientInfo, retrieveClientInfo, clientInfo
+                saveClientInfo, retrieveClientInfo, clientInfo, purchaseProduct, sendPurchaseConfirmation
                 
             }}
             
