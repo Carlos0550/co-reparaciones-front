@@ -3,10 +3,11 @@ import "./CartView.css"
 import { useAppContext } from '../../../AppContext'
 import { getCartItems, updateQuantityCart } from '../../../utils/CartManager'
 import { Button, Space } from 'antd'
-import { DeleteOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { CreditCardOutlined, DeleteOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import AdvertismentAccountModal from '../AdvertismentAccountModal/AdvertismentAccountModal'
 
 function CartView() {
-    const { subtitleColor, productsList } = useAppContext()
+    const { subtitleColor, productsList, purchaseProduct, loginData } = useAppContext()
     const [cart, setCart] = useState([])
     const [totalCart, setTotalCart] = useState(0)
     
@@ -33,6 +34,12 @@ function CartView() {
         setTotalCart(sumTotal)
     }
 
+    const [proccessingPurchase, setProccessingPurchase] = useState(false)
+    const [showAdvertisment, setShowAdvertisement] = useState(false)
+
+    useEffect(()=>{
+        if(!loginData || !loginData?.id) setShowAdvertisement(true)
+    },[loginData])
     return (
         <div className='cart-view-container'>
             <h1 style={{ color: subtitleColor || "#f0f0f0" }} className='cart-view-title'>Retoma desde donde lo dejaste</h1>
@@ -75,12 +82,17 @@ function CartView() {
                     <p className='cart-total-amount'>
                         {parseFloat(totalCart).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
                     </p>
-                    <Button type="primary" className='finalize-purchase-button'>
-                    Finalizar compra
+                    <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={proccessingPurchase} onClick={()=>{
+                        setProccessingPurchase(true)
+                        purchaseProduct()
+                    }}>
+                    <CreditCardOutlined/> Finalizar compra
                 </Button>
                 </div>
                 
             </div>
+
+            {showAdvertisment && <AdvertismentAccountModal closeModal={()=>setShowAdvertisement(false)}/>}
         </div>
     )
 }
