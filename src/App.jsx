@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from "react-router-dom"
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom"
 import Login from "./Admin/pages/Auth/Login"
 import "./App.css"
 import Register from "./Admin/pages/Auth/Register"
@@ -11,12 +11,15 @@ import PrincipalManager from "./Admin/pages/Principal/PrincipalManager"
 import SettingsManager from "./Admin/pages/Settings/SettingsManager"
 import ClientLayout from "./Clients/ClientLayout/ClientLayout"
 import LoginClient from "./Clients/ClientAuth/LoginClient"
+import ClientInfoView from "./Clients/ClientInfoView/ClientInfoView"
+
 function App() {
   return (
     <Routes>
        {/* Rutas para los clientes */}
       <Route path="/*" element={<ClientLayout/>}/>
       <Route path="/login-client" element={<LoginClient/>}/>
+      <Route path="/client-info" element={<ClientInfoView/>}/>
       {/* Rutas de administrador */}
       <Route path="/login-admin" element={<Login />}/>
       <Route path="/register" element={<Register />}/>
