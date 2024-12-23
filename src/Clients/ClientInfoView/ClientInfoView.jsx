@@ -56,7 +56,7 @@ function ClientInfoView() {
                 {!userNotVerified && <Title level={3}>Hola, {clientInfo[0]?.user_fullname}</Title>}
                 <Button type='primary' danger onClick={()=> closeSession()}>Cerrar sesión</Button>
             </div>
-                <ClientDataTable gettingData={retrievingClientInfo}/>
+                {!userNotVerified && <ClientDataTable gettingData={retrievingClientInfo}/>}
                 <div className='client-info-view-content'>
                     {userNotVerified === true && <div className='client-info-view-content-warning'>
 
