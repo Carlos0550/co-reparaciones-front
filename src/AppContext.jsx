@@ -8,9 +8,9 @@ import dayjs from "dayjs"
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import EditorModal from './Components/Modales/EditorModal';
-import loaderSpinner from "../public/90-ring-with-bg.svg"
 
 import Loader from "./utils/Loader"
+
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -74,11 +74,8 @@ export const AppProvider = ({ children }) => {
             });
             
             setLoginData(responseData.user)
-            const expiredSession = dayjs().add(1, "day").format("YYYY-MM-DD")
-            const sessionData = {
-                ...responseData.user,
-                expired_session: expiredSession
-            }
+
+            const {user_psw, auth_code, ...sessionData} = responseData.user
 
             localStorage.setItem("session_data", JSON.stringify(sessionData))
             if(responseData.user.admin) setIsAdmin(true)
@@ -717,7 +714,9 @@ export const AppProvider = ({ children }) => {
     const closeSession = async() => {
         const session_data = localStorage.getItem("session_data")
         if(session_data) localStorage.removeItem("session_data")
+        setLoginData([])
         navigate("/")
+        
     }
 
     const [openCart, setOpenCart] = useState(false)
@@ -750,8 +749,12 @@ export const AppProvider = ({ children }) => {
                 method: "PUT"
             })
             const responseData = await processRequests(response)
+
+            console.log("Response Data: ",responseData)
             if(!response.ok) throw new Error(responseData.msg)
             message.success(`${responseData.msg}`)
+            setLoginData(responseData.user)
+            localStorage.setItem("session_data", JSON.stringify(responseData.user))
             return true
         } catch (error) {
             console.log(error)
@@ -779,6 +782,7 @@ export const AppProvider = ({ children }) => {
                 return false
             }
             const responseData = await processRequests(response)
+
             if(!response.ok) throw new Error(responseData.msg)
             message.success(`${responseData.msg}`)
             return true
@@ -818,6 +822,63 @@ export const AppProvider = ({ children }) => {
          } 
     }
 
+    const saveClientInfo = async(clientData) => {
+        console.log(loginData.id)
+        try {
+            const response = await fetch(`${apis.backend}/api/clients/save-client-info?client_id=${encodeURI(loginData.id)}`,{
+                method: "POST",
+                body: clientData
+            })
+
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            const updatedLoginData = {
+                ...loginData,
+                is_verified: true
+            }
+
+            setLoginData(updatedLoginData)
+            localStorage.setItem("session_data", JSON.stringify(updatedLoginData))
+
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No fue posible guardar la informacion",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }
+    }
+
+    const [clientInfo, setClientInfo] = useState([])
+    const retrieveClientInfo = async() => {
+        try {
+            const response = await fetch(`${apis.backend}/api/clients/retrieve-client-info?client_id=${encodeURI(loginData.id)}`,{
+                method: "GET"
+            })
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            setClientInfo(responseData.client)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No fue posible guardar la informacion",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }
+    }
+
     useEffect(()=>{
         if(!appIsReady.current && loginData.id){ 
             appIsReady.current = true
@@ -825,46 +886,67 @@ export const AppProvider = ({ children }) => {
             initPage()
         }
     },[loginData])
-    
+
     const location = useLocation().pathname
     
-    useEffect(() => {
-        if(!location.includes("/login-admin") && (location.includes("admin") || location.includes("/user"))){
-            const session_data = localStorage.getItem("session_data")
-        
-        if (!session_data) {
-            navigate("/")
-            return
-        }
-    
-        let data;
+    const verifySessionUser = async (user_id, user_type) => {
+        console.log("user_id", user_id, "user_type", user_type);
+        if (!user_id) return false;
         try {
-            data = JSON.parse(session_data)
+            const response = await fetch(
+                `${apis.backend}/verify-session?user_id=${user_id}&user_type=${user_type}`
+            );
+            const responseMsg = await processRequests(response);
+            console.log(responseMsg)
+            if (responseMsg.outOfDate) {
+                localStorage.removeItem("session_data");
+                if(location.includes("admin")) navigate("/")
+                throw new Error(responseMsg.msg);
+            }
+            return true;
         } catch (error) {
-            console.error("Error al parsear session_data:", error)
-            localStorage.removeItem("session_data")
-            navigate("/") 
-            return 
+            console.error("Error verifying session:", error);
+            notification.error({
+                message: "Estado de su sesión",
+                description: error.message,
+                duration: 3,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false;
         }
-    
-        if (!data) {
-            console.warn("No se encontró la data de la sesión.")
-            navigate("/")
-            return 
-        }
+    };
+
+    const alreadyVerified = useRef(false)
+    useEffect(() => {
+        const checkSession = async () => {
+            const session_data = localStorage.getItem("session_data");
             
-        const argentinaTime = dayjs().tz("America/Buenos_Aires")
-    
-        if (data?.session_timeout && argentinaTime.isAfter(data?.session_timeout)) {
-            console.log("La sesión ha expirado. Eliminando datos de sesión...")
-            localStorage.removeItem("session_data")
-            navigate("/")
-            return 
+            let data;
+            try {
+                data = JSON.parse(session_data);
+                console.log("checkSession: ", data)
+            } catch (error) {
+                console.error("Error parsing session data:", error);
+                localStorage.removeItem("session_data");
+                return;
+            }
+
+            const argentinaTime = dayjs().tz("America/Buenos_Aires");
+            console.log("Current time in Buenos Aires:", argentinaTime.format());
+
+            if(!data && location.includes("admin")) navigate("/")
+            await verifySessionUser(data.id, data.user_type);
+
+            setLoginData(data);
+            if (data?.admin) setIsAdmin(true);
+        };
+
+        if(!alreadyVerified.current){
+            alreadyVerified.current = true
+            checkSession()
         }
-        setLoginData(data)
-        if (data?.admin) setIsAdmin(true)
-        }
-    }, [location])
+    }, [location]);
     
 
 
@@ -893,7 +975,8 @@ export const AppProvider = ({ children }) => {
                 headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
                 subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw, getAllBanners,
                 closeSession, getPageColors, setOpenCart, openCart,
-                loginClient, verifyAuthCodeClients, createNewClient, isInitialising, initPage
+                loginClient, verifyAuthCodeClients, createNewClient, isInitialising, initPage,
+                saveClientInfo, retrieveClientInfo, clientInfo
                 
             }}
             
