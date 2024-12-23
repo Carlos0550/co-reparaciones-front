@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button, Form, Input, message } from "antd"
 import "./LoginClient.css"
 import { useNavigate } from "react-router-dom"
@@ -11,7 +11,7 @@ function LoginClient() {
     const [hideMainForm, setHiddenMainForm] = useState(false)
     const [currentUserEmail, setCurrentUserEmail] = useState(null)
 
-    const { loginClient, verifyAuthCodeClients, createNewClient } = useAppContext()
+    const { loginClient, verifyAuthCodeClients, createNewClient, loginData } = useAppContext()
 
     const onFinish = async (values) => {
         setIsLoading(true)
@@ -29,11 +29,16 @@ function LoginClient() {
         const result = await verifyAuthCodeClients(values.otp_code, currentUserEmail)
         if(result){
             setIsLoading(false)
-            navigate("/")
+            navigate("/client-info")
         }
+        setIsLoading(false)
     }
 
-
+    useEffect(()=>{
+        if(!loginData.id) return;
+        if(loginData && loginData.user_type === "client") navigate("/client-info")
+        if(loginData && loginData.user_type === "admin") navigate("/admin-dashboard")
+    },[loginData])
     return (
         <React.Fragment>
             <div className="login-container">
