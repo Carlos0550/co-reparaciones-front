@@ -12,6 +12,7 @@ import SettingsManager from "./Admin/pages/Settings/SettingsManager"
 import ClientLayout from "./Clients/ClientLayout/ClientLayout"
 import LoginClient from "./Clients/ClientAuth/LoginClient"
 import ClientInfoView from "./Clients/ClientInfoView/ClientInfoView"
+import PaymentMessages from "./Clients/views/CartView/PaymentsMessages/PaymentMessages"
 
 function App() {
   return (
@@ -20,6 +21,9 @@ function App() {
       <Route path="/*" element={<ClientLayout/>}/>
       <Route path="/login-client" element={<LoginClient/>}/>
       <Route path="/client-info" element={<ClientInfoView/>}/>
+      <Route path="/payment-success" element={<PaymentMessages/>}/>
+      <Route path="/payment-pending" element={<PaymentMessages/>}/>
+      <Route path="/payment-failure" element={<PaymentMessages/>}/>
       {/* Rutas de administrador */}
       <Route path="/login-admin" element={<Login />}/>
       <Route path="/register" element={<Register />}/>
