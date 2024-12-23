@@ -1,0 +1,18 @@
+.client-info-view{
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+   
+}
+
+.client-info-view-content{
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.client-info-name-and-button{
+    margin-bottom: .5rem;
+}

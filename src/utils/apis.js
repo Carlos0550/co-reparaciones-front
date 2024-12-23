@@ -1,5 +1,5 @@
 export const apis = {
-    backend: "https://www.co-reparaciones-server.cyr-app.online"
+    backend: "http://localhost:4000",
 }
 
-//https://co-reparaciones-back-production.up.railway.app
+//https://www.co-reparaciones-server.cyr-app.online

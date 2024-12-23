@@ -1,0 +1,15 @@
+.form-client-info{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 5px;
+    justify-content: center;
+    align-items: center;
+    width: 500px;
+}
+
+.antd-input{
+    width: 100%;
+}
+

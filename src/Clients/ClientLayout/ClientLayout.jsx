@@ -1,30 +1,25 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef } from "react"
 import "./ClientLayout.css"
 import { useAppContext } from "../../AppContext.jsx"
-import { Button, Drawer, Space } from "antd"
-import { Route, Routes, useNavigate } from "react-router-dom"
+import { Button, Drawer } from "antd"
+import { Route, Routes } from "react-router-dom"
 import BannersView from "../views/BannersView/BannersView.jsx"
 import ProductsView from "../views/ProductsView/ProductsView.jsx"
-import { ClockCircleOutlined, GithubOutlined, MailOutlined, ShoppingCartOutlined, UserOutlined, WhatsAppOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined, GithubOutlined, MailOutlined, WhatsAppOutlined } from "@ant-design/icons"
 import RoadSVg from "../../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg"
 import ProductDetailsView from "../views/ProductDetailsView/ProductDetailsView.jsx"
 import CartView from "../views/CartView/CartView.jsx"
-import Logo from "../../../public/logo.jpeg"
+import ClientHeader from "./ClientHeader.jsx"
 function ClientLayout() {
-    const { categories,
-        paragraphColor,
+    const { 
         footerColor,
-        headerColor,
         contentColor,
-        width,
         initPage,
         banners,
         productsList,
         setOpenCart,
-        openCart
+        openCart,    
     } = useAppContext()
-
-    const navigate = useNavigate()
 
     const alreadyInit = useRef(false)
     useEffect(()=>{
@@ -34,60 +29,9 @@ function ClientLayout() {
         }
     },[])
 
-    const headerContent = [
-        {
-            id: 1,
-            name: "📱 Celulares"
-        },
-        {
-            id: 2,
-            name: "🔋 Accesorios de Celulares"
-        },
-        {
-            id: 3,
-            name: "🎧 Accesorios de Audio"
-        },
-        {
-            id: 4,
-            name: "📱 Accesorios de Celulares"
-        },
-        {
-            id: 5,
-            name: "🔌 Cables y Adaptadores"
-        }
-    ]
-
     return (
         <React.Fragment>
-            <header className="header" >
-                <nav className="navbar" style={{ backgroundColor: headerColor || "#ffffff" }}>
-                    <picture className="logo-container" onClick={() => navigate("/")}>
-                        <img src={Logo} />
-                    </picture>
-                    <ul className="navbar-ul">
-                        {Array.isArray(headerContent) && width > 768 && headerContent.slice(0, (() => {
-                            if (width > 1200) return Math.floor(categories.length * 0.9);
-                            if (width > 1000) return Math.floor(categories.length * 0.8);
-                            if (width > 868) return Math.floor(categories.length * 0.6);
-                            if (width > 768) return Math.floor(categories.length * 0.4);
-                            return 0;
-                        })()).map((cat, idx) => (
-                            <li className="navbar-li" key={cat.id || idx}>
-                                <p className="navbar-p" style={{ color: paragraphColor || "#000000" }}>{cat?.name}</p>
-                            </li>
-                        ))}
-                    </ul>
-                    <Space>
-                        <Button onClick={() => {
-                            navigate("/login-client")
-                        }} icon={<UserOutlined />} />
-
-                        <Button icon={<ShoppingCartOutlined />} onClick={()=> setOpenCart(true)}/>
-                    </Space>
-                </nav>
-
-
-            </header>
+            <ClientHeader/>
             <Routes>
                 <Route path="/" element={
                     <div className="main-client-container" style={{ backgroundColor: contentColor || "#ffffff" }}>
