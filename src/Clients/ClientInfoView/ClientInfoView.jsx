@@ -7,10 +7,11 @@ import Title from 'antd/es/typography/Title'
 import { WarningOutlined } from '@ant-design/icons'
 import "./ClientInfoView.css"
 import ClientDataTable from './Tables/ClientDataTable'
-import { Button } from 'antd'
+import { Button, Drawer } from 'antd'
+import CartView from '../views/CartView/CartView'
 function ClientInfoView() {
     const navigate = useNavigate()
-    const { loginData, retrieveClientInfo, clientInfo, closeSession } = useAppContext()
+    const { loginData, retrieveClientInfo, clientInfo, closeSession, openCart, setOpenCart } = useAppContext()
     const [userNotVerified, setUserNotVerified] = useState(false)
     
     useEffect(() => {
@@ -46,6 +47,7 @@ function ClientInfoView() {
 
     const getUsernameFromEmail = (email) => email?.split("@")[0] || "Usuario"
 
+    
     return (
         <React.Fragment>
             <ClientHeader />
@@ -70,6 +72,10 @@ function ClientInfoView() {
 
                 </div>
             </div>
+
+            {
+                openCart && <Drawer onClose={() => setOpenCart(false)} open={openCart} children={<CartView />}/>
+            }
         </React.Fragment>
     )
 }

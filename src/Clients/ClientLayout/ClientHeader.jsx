@@ -5,7 +5,7 @@ import { useAppContext } from '../../AppContext';
 import Logo from "../../../public/logo.jpeg"
 import "./ClientLayout.css"
 function ClientHeader() {
-    const { width, categories, paragraphColor, headerColor, loginData, setOpenCart} = useAppContext()
+    const { width, categories, paragraphColor, headerColor, loginData, setOpenCart, isAdmin} = useAppContext()
     const navigate = useNavigate()
 
     const headerContent = [
@@ -51,12 +51,12 @@ function ClientHeader() {
                     </ul>
                     <Space>
                         <Button onClick={() => {
-                            if(!loginData.id) navigate("/login-client")
-                            if(loginData && loginData.user_type === "client") navigate("/client-info")
-                            if(loginData && loginData.user_type === "admin") navigate("/admin-dashboard")
+                            if(!loginData?.id) navigate("/login-client")
+                            if(loginData && loginData?.user_type === "client") navigate("/client-info")
+                            if(loginData && loginData?.user_type === "admin") navigate("/admin-dashboard")
                         }} icon={<UserOutlined />} />
 
-                        <Button icon={<ShoppingCartOutlined />} onClick={()=> setOpenCart(true)}/>
+                        {!isAdmin && <Button icon={<ShoppingCartOutlined />} onClick={()=> setOpenCart(true)}/>}
                     </Space>
                 </nav>
 
