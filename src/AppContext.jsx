@@ -910,9 +910,6 @@ export const AppProvider = ({ children }) => {
         }
     },[])
 
-    useEffect(()=>{
-        console.log("LoginData: ", loginData)
-    },[loginData])
 
     useEffect(() => {
         const handleResize = () => {
