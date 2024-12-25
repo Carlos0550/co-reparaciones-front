@@ -1,28 +1,99 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useAppContext } from '../../../AppContext'
 import { useNavigate } from 'react-router-dom'
-import { Card, Col, Row, Statistic, Table } from 'antd'
+import { Card, message, notification, Table } from 'antd'
 import "./Dashboard.css"
+import useOrders from './useOrders'
+import ClientOrderData from './ClientOrderData'
 function Dashboard() {
-  const { loginData } = useAppContext()
+  const { loginData, getOrders, processOrders } = useAppContext()
   const navigate = useNavigate()
+  const [gettingOrders, setGettingOrders] = useState(false)
+  const alreadyGettingOrders = useRef(false)
+  const [orders, setOrders] = useState([])
 
-  useEffect(()=> {
-    if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-        navigate("/login-client");
-    } else if (loginData[0] && !loginData[0]?.admin) {
-        navigate("/client-info");
-    } else if (loginData[0] && loginData[0]?.admin) {
-        navigate("/admin-dashboard");
+  
+
+  const handleGetOrders = async() => {
+    setGettingOrders(true);
+    const result = await getOrders();
+    setGettingOrders(false);
+    setTimeout(() => {
+      notification.destroy();
+    }, 1000);
+    if (!result) {
+      message.info("No hay órdenes de compra");
     }
+    setOrders(result.orders)
+    message.success(`Ordenes actualizas`,3)
+  }
+  const fetchOrders = async () => {
+    try {
+      setGettingOrders(true);
+      const result = await getOrders();
+      setGettingOrders(false);
+      console.log(result)
+      setTimeout(() => {
+        notification.destroy();
+      }, 1000);
+
+      
+      if (!result) {
+        message.info("No hay órdenes de compra");
+      }
+      setOrders(result.orders)
+      message.success(`Se encontraron ${result?.orders.length} órdenes de compra`,4)
+    } catch (error) {
+      setGettingOrders(false);
+      notification.destroy();
+      console.error("Error al obtener órdenes:", error);
+      message.error("Hubo un problema al obtener las órdenes.");
+    }
+  };
+
+  
+useEffect(()=>{
+  if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+    navigate("/login-client");
+  } else if (loginData[0] && !loginData[0]?.admin) {
+    navigate("/client-info");
+  } else if (loginData[0] && loginData[0]?.admin) {
+    if (!alreadyGettingOrders.current) {
+      alreadyGettingOrders.current = true;
+      setTimeout(() => {
+        notification.open({
+          message: "Obteniendo órdenes de compra...",
+          duration: 0,
+        });
+      }, 200);
+      fetchOrders();
+    }
+  }
 },[loginData])
+
+
+const { 
+  orderCols, 
+  openModal,
+  setOpenModal,
+  clientData } = useOrders(processOrders, handleGetOrders)
   return (
     <React.Fragment>
       <h1>Panel de administración</h1>
-      <h2>Hola, {loginData?.admin_name}</h2>
+      <h2>Hola, {loginData[0]?.admin_name}</h2>
       <Card title="Listado de ordenes">
-          <Table/>
+        <Table 
+          columns={orderCols}
+          dataSource={orders}
+          loading={gettingOrders}
+        />
       </Card>
+      {openModal && (
+        <ClientOrderData
+          closeModal={() => setOpenModal(false)}
+          clientData={clientData}
+        />
+      )}
     </React.Fragment>
   )
 }

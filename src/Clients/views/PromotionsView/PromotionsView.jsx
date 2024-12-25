@@ -56,11 +56,11 @@ function PromotionsView() {
     };
 
     const activePromotions = promotions.filter(prom => prom.promotion_state === true);
-    console.log(activePromotions)
+
     const slides = activePromotions.length <= 4 
     ? [...activePromotions, ...activePromotions] 
     : activePromotions;
-console.log(slides)
+
     return (
         <React.Fragment>
             <h1 className="promotions-title">{randomTitles}</h1>

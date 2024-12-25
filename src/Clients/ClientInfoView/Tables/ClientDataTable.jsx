@@ -1,12 +1,68 @@
-import { Button, Space, Table } from 'antd'
+import { Button, Tag, Table } from 'antd'
 import React from 'react'
 import { useAppContext } from '../../../AppContext'
-import { DeliveredProcedureOutlined, EditOutlined, IdcardOutlined, MailOutlined, PhoneOutlined, SmileOutlined, UserOutlined } from '@ant-design/icons'
+import { EditOutlined, IdcardOutlined, MailOutlined, PhoneOutlined, SmileOutlined, UserOutlined } from '@ant-design/icons'
 import RoadIcon from "../../../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg"
 import Title from 'antd/es/typography/Title'
 
 function ClientDataTable() {
-    const { loginData } = useAppContext()
+    const { loginData, getClientOrder, gettingClientOrder, clientOrder, productsList } = useAppContext()
+    const parseProducts = (productss) => {
+        if(!productss) return []
+        const parsedProducts = JSON.parse(productss)
+        
+        const products = parsedProducts.map(product => {
+            const productInfo = productsList.find(prod => prod.id === product.id)
+            return {
+                product_name: productInfo.product_name,
+                quantity: product.quantity,
+                price: productInfo.product_price
+            }
+        })
+
+        return products
+    }
+
+    const orderCols = [
+        {
+            title: "Fecha de compra",
+            render: (_,record) => {
+                const { order_date } = record
+                return(
+                    <ul>
+                        <li>{order_date.split("T")[0]}</li>
+                    </ul>
+                )
+            }
+        },{
+            title: "Estado de compra",
+            render: (_,record) => {
+                const { order_status } = record
+                const orderStatuses = {
+                    "pending": <Tag color="blue">Pendiente</Tag>,
+                    "processing": <Tag color="orange">En proceso</Tag>,
+                    "completed": <Tag color = "green">Despachada</Tag>,
+                }
+                return(
+                    <ul>
+                        <li>{orderStatuses[order_status]}</li>
+                    </ul>
+                )
+            }
+        },{
+            title: "Detalles de compra",
+            render: (_,record) => {
+                const parsedProducts = parseProducts(record?.products_details)
+                return(
+                    <ul>
+                        {parsedProducts.map(product => (
+                            <li>{product?.quantity} {product?.product_name} {parseFloat(product?.price).toLocaleString("es-AR",{style: "currency", currency: "ARS"})}</li>
+                        ))}
+                    </ul>
+                )
+            }
+        }
+    ]
 
     const tableCols = [
         {
@@ -88,7 +144,19 @@ function ClientDataTable() {
         scroll={{ x: 800 }}
     />
     <Title level={3}>Historial de compras</Title>
+
+    <Button type='primary' style={{
+        marginBottom: "1rem",
+        width: "min-content"
+    }}
+    onClick={()=> getClientOrder(loginData[0]?.client_uuid)}
+    loading={gettingClientOrder}
+    >Obtener ordenes</Button>
+
     <Table
+        loading={gettingClientOrder}
+        columns={orderCols}
+        dataSource={clientOrder}
         locale={{
             emptyText: <div style={{ textAlign: "center" }}>
             <SmileOutlined style={{ fontSize: "24px", color: "#1890ff" }} />

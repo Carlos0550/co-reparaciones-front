@@ -12,16 +12,27 @@ import CartView from '../views/CartView/CartView'
 import useSession from "../../Context_Folders/VerifySession/useSession"
 function ClientInfoView() {
     const navigate = useNavigate()
-    const { loginData, openCart, setOpenCart } = useAppContext()
+    const { loginData, openCart, setOpenCart, getClientOrder, setGettingClientOrder, setClientOrder } = useAppContext()
     const [userNotVerified, setUserNotVerified] = useState(false)
 
     const { closeSession } = useSession()
+
+    const alreadyGettedClientOrder = useRef(false)    
+    const handleGetClientOrder = async () => {
+        if(!alreadyGettedClientOrder.current){
+            alreadyGettedClientOrder.current = true
+            setGettingClientOrder(true)
+            const result = await getClientOrder(loginData[0]?.client_uuid)
+            setGettingClientOrder(false)
+            setClientOrder(result.orders)
+        }
+    }
 
     useEffect(() => {
         if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
             navigate("/login-client");
         } else if (loginData[0] && !loginData[0]?.admin) {
-            return
+            handleGetClientOrder()
         } else if (loginData[0] && loginData[0]?.admin) {
             navigate("/admin-info");
         }
@@ -33,7 +44,6 @@ function ClientInfoView() {
 
     const getUsernameFromEmail = (email) => email?.split("@")[0] || "Usuario"
 
-
     return (
         <React.Fragment>
             <ClientHeader />
@@ -44,7 +54,7 @@ function ClientInfoView() {
                     {!userNotVerified && <Title level={3}>Hola, {loginData[0]?.user_fullname}</Title>}
                     <Button type='primary' danger onClick={() => closeSession()}>Cerrar sesión</Button>
                 </div>
-                {!userNotVerified && <ClientDataTable />}
+                {!userNotVerified && <ClientDataTable/>}
                 <div className='client-info-view-content'>
                     {userNotVerified === true && <div className='client-info-view-content-warning'>
 

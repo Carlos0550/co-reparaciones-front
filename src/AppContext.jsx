@@ -664,9 +664,9 @@ export const AppProvider = ({ children }) => {
     const retrieveClientInfo = async(neededData= false) => {
         const session_data = localStorage.getItem("session_data")
         const parsedSessionData = JSON.parse(session_data)
-        
+
         try {
-            const response = await fetch(`${apis.backend}/api/clients/retrieve-client-info?client_id=${encodeURI(loginData.id || parsedSessionData.id)}`,{
+            const response = await fetch(`${apis.backend}/api/clients/retrieve-client-info?client_id=${encodeURI(loginData.id || parsedSessionData.user_id)}`,{
                 method: "GET"
             })
             const responseData = await processRequests(response)
@@ -696,10 +696,11 @@ export const AppProvider = ({ children }) => {
             products.forEach(element => {
                 productsList.forEach(prod => {
                     if(prod.id === element.id){
-                        console.log(prod)
+
                         processedProducts.push({
                             id: prod.id,
                             quantity: element.quantity,
+                            name: prod.product_name,
                             unit_price: prod.product_price,
                             currency_id: 'ARS'
                         })
@@ -734,21 +735,16 @@ export const AppProvider = ({ children }) => {
             return false
         }
     }
-
-    useEffect(()=>{
-        console.log(clientInfo)
-    },[clientInfo])
     
     const sendPurchaseConfirmation = async () => {
         const clientData = localStorage.getItem("client_info");
         const cart = localStorage.getItem("current_cart");
-        console.log(clientData)
-        console.log(cart)
-        // if(!cart || clientData) return navigate("/")
 
         const products = JSON.parse(cart);
         const formData = new FormData();
 
+        console.log("Client data:", clientData);
+        console.log("cart data:", products);
         formData.append("products", JSON.stringify(products));
         formData.append("client_data", clientData);
     
@@ -806,6 +802,91 @@ export const AppProvider = ({ children }) => {
             return false
         }
        
+    }
+
+    const processOrders = async(orderId) => {
+        try {
+            const response = await fetch(`${apis.backend}/api/orders/process-order/${orderId}`,{
+                method: "PUT"
+            })
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            
+            notification.info({
+                message: "Orden de compra procesada",
+                description: responseData.msg,
+                duration: 5,
+                showProgress: true
+            })
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No fue posible procesar la orden",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }
+    }
+
+    const getOrders = async() => {
+        try {
+            const response = await fetch(`${apis.backend}/api/orders/get-orders`)
+
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+
+            return responseData
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }
+
+    const [gettingClientOrder, setGettingClientOrder] = useState(false)
+    
+    const [clientOrder, setClientOrder] = useState([])
+    const getClientOrder = async(clientId) => {
+        console.log(clientId)
+        setGettingClientOrder(true)
+
+        try {
+            const response = await fetch(`${apis.backend}/api/clients/get-client-orders/${clientId}`)
+
+            if(response.status === 400){
+                setTimeout(() => {
+                    notification.info({
+                        message: "Estamos cargando tus datos",
+                        description: "No pudimos obtener tus ordenes tus datos estan en proceso, espera unos segundos e intenta de nuevo",
+                        duration: 5,
+                        showProgress: true,
+                        pauseOnHover: false
+                    }) 
+                }, 1500);
+
+                return;
+            }
+            const responseData = await processRequests(response)
+            if(!response.ok) throw new Error(responseData.msg)
+
+            return responseData
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No pudimos obtener tus ordenes",
+                description: error.message,
+                duration: 5,
+                pauseOnHover: false,
+                showProgress: true
+            })
+            return false
+        }finally{
+            setGettingClientOrder(false)
+
+        }
     }
     
 
@@ -887,13 +968,16 @@ export const AppProvider = ({ children }) => {
                 setEditingAdminPsw, editingAdminPsw,
 
                 //Clientes
-                loginData,
+                loginData,getClientOrder, gettingClientOrder, setGettingClientOrder, clientOrder, setClientOrder,
                 //Inicio de sesión
                 registerUser,
                 //Guardar información del cliente
                 saveClientInfo,
                 //Estados
-                clientInfo
+                clientInfo,
+
+                //Ordenes
+                getOrders, processOrders
             }}
             
         >
