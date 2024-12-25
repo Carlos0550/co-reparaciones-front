@@ -1,11 +1,14 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button,Form, Input} from "antd"
 import "./Login.css"
 import { useNavigate } from "react-router-dom"
 import { useAppContext } from "../../../AppContext"
 
+import verifyOtpAdmin from "../../../Context_Folders/AdminAuth/verifyOtpAdmin"
+import useLoginAdmin from "../../../Context_Folders/AdminAuth/useLoginAdmin"
 function Login() {
     const navigate = useNavigate()
+    const { loginAdmin, verifyAdminAccount } = useLoginAdmin()
     const [isLoading, setIsLoading] = useState(false)
     const [hiddenPsw, setHiddenPsw] = useState(true)
     const [showOtpInput, setShowOtpInput] = useState(false)
@@ -14,13 +17,15 @@ function Login() {
     const [adminVerified, setAdminVerified] = useState(false)
     const [user_email, setUserEmail] = useState("")
 
-    const { updateAdminPassword, verifyAccountUser, verifyOtpAdminCode, loginAdmin } = useAppContext()
+
+    const { setAdminPassword, loginData} = useAppContext()
+  
 
     const onFinish = async (values) => {
         setIsLoading(true)
         setUserEmail(values.user_email)
         try {
-            const result = await verifyAccountUser(values.user_email)
+            const result = await verifyAdminAccount(values.user_email)
             console.log(result)
             
             if (result === 403) {
@@ -46,7 +51,7 @@ function Login() {
     const onOtpSubmit = async (values) => {
         setIsLoading(true)
         try {
-            const result = await verifyOtpAdminCode(values.otp_result, user_email)
+            const result = await verifyOtpAdmin(values.otp_result, user_email)
             
             if (result) {
                 setShowOtpInput(false)
@@ -69,10 +74,10 @@ function Login() {
             formData.append("user_password", values.user_password)
             formData.append("user_email", user_email)
 
-            const result = adminVerified ? await loginAdmin(formData) : await updateAdminPassword(values.user_password, user_email)
+            const result = adminVerified ? await loginAdmin(formData) : await setAdminPassword(values.user_password, user_email)
             
             if (result) {
-                navigate("/admin-dashboard")
+                window.location.href = "/admin-dashboard"
             } else {
                 console.log("No se pudo guardar la contraseña")
             }
@@ -82,6 +87,16 @@ function Login() {
             setIsLoading(false)
         }
     }
+
+    useEffect(()=> {
+        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+            return;
+        } else if (loginData[0] && !loginData[0]?.admin) {
+            navigate("/client-info");
+        } else if (loginData[0] && loginData[0]?.admin) {
+            navigate("/admin-dashboard");
+        }
+    },[loginData])
 
     return (
         <React.Fragment>

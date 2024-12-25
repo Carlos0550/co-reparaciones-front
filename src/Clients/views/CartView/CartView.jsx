@@ -38,8 +38,9 @@ function CartView() {
     const [showAdvertisment, setShowAdvertisement] = useState(false)
 
     useEffect(()=>{
-        if(!loginData || !loginData?.id) setShowAdvertisement(true)
+        if(loginData.length === 0) setShowAdvertisement(true)
     },[loginData])
+
     return (
         <div className='cart-view-container'>
             <h1 style={{ color: subtitleColor || "#f0f0f0" }} className='cart-view-title'>Retoma desde donde lo dejaste</h1>

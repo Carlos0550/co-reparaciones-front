@@ -5,8 +5,8 @@ import { DeliveredProcedureOutlined, EditOutlined, IdcardOutlined, MailOutlined,
 import RoadIcon from "../../../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg"
 import Title from 'antd/es/typography/Title'
 
-function ClientDataTable({ gettingData }) {
-    const { clientInfo } = useAppContext()
+function ClientDataTable() {
+    const { loginData } = useAppContext()
 
     const tableCols = [
         {
@@ -80,8 +80,8 @@ function ClientDataTable({ gettingData }) {
     <React.Fragment>
         <Table
         columns={tableCols}
-        dataSource={clientInfo}
-        loading={gettingData}
+        dataSource={loginData}
+
         pagination={false}
         rowKey={(record) => record.id}
         bordered

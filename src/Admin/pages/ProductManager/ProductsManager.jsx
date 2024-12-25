@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Row, Col, Card, Button, message } from 'antd'
 import AddCategories from './Forms/AddCategories'
 import AddProducts from './Forms/AddProducts'
@@ -6,9 +6,10 @@ import CategoriesTable from './Tables/CategoriesTable'
 import ProductsTable from './Tables/ProductsTable'
 import { useAppContext } from '../../../AppContext'
 import Title from 'antd/es/typography/Title'
+import { useNavigate } from 'react-router-dom'
 function ProductsManager() {
-    const { editingProduct, getProducts } = useAppContext()
-
+    const { editingProduct, getProducts, loginData } = useAppContext()
+const navigate = useNavigate()
     const [gettingProducts, setGettingProducts] = useState(false)
     const handleGetProducts = async() => {
         const hiddenMessage = message.loading("Obteniendo productos...")
@@ -17,7 +18,15 @@ function ProductsManager() {
         setGettingProducts(false)
         hiddenMessage()
     }
-
+useEffect(()=> {
+        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+            navigate("/login-client");
+        } else if (loginData[0] && !loginData[0]?.admin) {
+            navigate("/client-info");
+        } else if (loginData[0] && loginData[0]?.admin) {
+            return
+        }
+    },[loginData])
   return (
     <React.Fragment>
       <Title>

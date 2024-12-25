@@ -2,9 +2,10 @@ import React from 'react'
 import dayjs from 'dayjs'
 import { Button } from 'antd'
 import { useAppContext } from '../../../../AppContext'
-
+import useSession from "../../../../Context_Folders/VerifySession/useSession"
 export default function getSecurityAdminColumns() {
-    const { setEditingAdminPsw, closeSession } = useAppContext()
+    const { setEditingAdminPsw } = useAppContext()
+    const { closeSession } = useSession()
   return [
     {
       title: 'Nombre de usuario',
@@ -18,14 +19,14 @@ export default function getSecurityAdminColumns() {
     },
     {
       title: 'Próximo cierre de sesión',
-      dataIndex: 'expired_session',
-      key: 'expired_session',
+      dataIndex: 'session_timeout',
+      key: 'session_timeout',
       render: (expired_session) => formatSessionDate(expired_session)
     },
     {
       title: 'Contraseña',
       key: 'password',
-      render: (_, record) => (
+      render: () => (
         <Button type='primary' onClick={() => setEditingAdminPsw(true)} disabled>
           Cambiar contraseña
         </Button>
@@ -39,7 +40,6 @@ export default function getSecurityAdminColumns() {
 }
 
 const formatSessionDate = (expired_session) => {
-  console.log(expired_session)
   if (!expired_session) return 'Sin fecha'
   return dayjs(expired_session).format('YYYY-MM-DD')
 }

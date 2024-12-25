@@ -11,6 +11,11 @@ import EditorModal from './Components/Modales/EditorModal';
 
 import Loader from "./utils/Loader"
 
+import setAdminPassword from "./Context_Folders/AdminAuth/SetAdminPsw"
+import useRetriveSession from './Context_Folders/VerifySession/useSession';
+
+
+
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -26,6 +31,9 @@ export const useAppContext = () => {
 
 export const AppProvider = ({ children }) => {
     const navigate = useNavigate()
+
+    const { retrieveSession, loginData, 
+        setLoginData } = useRetriveSession()
     const registerUser = async (userData) => {
         try {
             const response = await fetch(`${apis.backend}/api/users/register-user`, {
@@ -56,44 +64,6 @@ export const AppProvider = ({ children }) => {
             return false
         }
     }
-
-    const [loginData, setLoginData] = useState({})
-    const [isAdmin, setIsAdmin] = useState(false)
-    const loginAdmin = async (userData) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/admins/login-admin`, {
-                body: userData,
-                method: "POST"
-            })
-
-            const responseData = await processRequests(response)
-
-            if (!response.ok) throw new Error(responseData.msg)
-            notification.success({
-                message: responseData.msg,
-            });
-            
-            setLoginData(responseData.user)
-
-            const {user_psw, auth_code, ...sessionData} = responseData.user
-
-            localStorage.setItem("session_data", JSON.stringify(sessionData))
-            if(responseData.user.admin) setIsAdmin(true)
-            else setIsAdmin(false)
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible iniciar sesión",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false
-        }
-    }
-    
 
     const saveCategory = async(categoryName) => {
         try {
@@ -340,87 +310,7 @@ export const AppProvider = ({ children }) => {
             })
             return false
         }
-    }
-
-    const verifyAccountUser = async(user_email) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/admins/verify-admin-data/${user_email}`)
-            const responseData = await processRequests(response)
-            
-            if(response.status === 403){
-                notification.warning({
-                    description: responseData.message,
-                    duration: 5,
-                    pauseOnHover: false,
-                    showProgress: true
-                })
-                return 403
-            }
-            if(!response.ok) throw new Error(responseData.msg)
-            return 200
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible verificar la cuenta",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return 400
-        }
-    }
-
-    const verifyOtpAdminCode = async(otpCode, admin_email) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/admins/verify-admin-otp/${otpCode}?admin_email=${admin_email}`)
-            const responseData = await processRequests(response)
-            console.log(responseData)
-            if(!response.ok) throw new Error(responseData.msg)
-                notification.success({
-                    message: "Código OTP correcto",
-                    description: "Ahora puedes ingresar la contraseña de tu cuenta"
-                })
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible verificar el OTP",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false
-        }
-    }
-
-    const updateAdminPassword = async(password, admin_email) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/admins/set-admin-psw/${admin_email}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({password})
-            });
-
-            const responseData = await processRequests(response)
-            if(!response.ok) throw new Error(responseData.msg)
-            message.success(`${responseData.msg}`)
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible actualizar la contraseña",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false
-        }
-    }
+    }    
 
     const savePromotion = async(promotionValues) => {
         try {
@@ -711,93 +601,8 @@ export const AppProvider = ({ children }) => {
         }
     }
 
-    const closeSession = async() => {
-        const session_data = localStorage.getItem("session_data")
-        if(session_data) localStorage.removeItem("session_data")
-        setLoginData([])
-        navigate("/")
-        
-    }
-
     const [openCart, setOpenCart] = useState(false)
 
-    const createNewClient = async(clientEmail) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/clients/new-client/${clientEmail}`,{
-                method: "POST"
-            })
-            const responseData = await processRequests(response)
-            if(!response.ok) throw new Error(responseData.msg)
-            message.success(`${responseData.msg}`)
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible crear el usuario",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false
-        }
-    }
-
-    const verifyAuthCodeClients = async(authCode, clientEmail) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/clients/verify-auth-code?otpCode=${authCode}&client_email=${clientEmail}`,{
-                method: "PUT"
-            })
-            const responseData = await processRequests(response)
-
-            console.log("Response Data: ",responseData)
-            if(!response.ok) throw new Error(responseData.msg)
-            message.success(`${responseData.msg}`)
-            setLoginData(responseData.user)
-            localStorage.setItem("session_data", JSON.stringify(responseData.user))
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible verificar el codigo",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false
-        }
-    }
-
-    const loginClient = async(client_email) => {
-        try {
-            const response = await fetch(`${apis.backend}/api/clients/login-client/${client_email}`,{
-                method: "PUT"
-            })
-            if(response.status === 404){
-                notification.info({
-                    message: "No se encontro ningun usuario con ese correo",
-                })
-
-                return false
-            }
-            const responseData = await processRequests(response)
-
-            if(!response.ok) throw new Error(responseData.msg)
-            message.success(`${responseData.msg}`)
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No fue posible iniciar sesion",
-                description: error.message,
-                duration: 5,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false
-        }
-    }
 
     const appIsReady = useRef(false)
     const [isInitialising, setIsInitialising] = useState(false)
@@ -937,8 +742,9 @@ export const AppProvider = ({ children }) => {
     const sendPurchaseConfirmation = async () => {
         const clientData = localStorage.getItem("client_info");
         const cart = localStorage.getItem("current_cart");
-        
-        if(!cart || !loginData || !loginData?.id) return navigate("/")
+        console.log(clientData)
+        console.log(cart)
+        // if(!cart || clientData) return navigate("/")
 
         const products = JSON.parse(cart);
         const formData = new FormData();
@@ -954,6 +760,7 @@ export const AppProvider = ({ children }) => {
     
             if (response.ok) {
                 console.log("Confirmación de compra enviada exitosamente.");
+                await substractStockInDb(products)
                 localStorage.removeItem("current_cart");
             } else {
                 throw new Error("Error en la respuesta del servidor.");
@@ -972,11 +779,38 @@ export const AppProvider = ({ children }) => {
     };
     
     
-    
+    const substractStockInDb = async(products) => {
+        if(!products) return;
+        const formData = new FormData()
+
+        const processedProducts = products.map(prod => {
+            return {
+                id: prod.id,
+                quantity: prod.quantity
+            }
+        })
+        formData.append("products", JSON.stringify(processedProducts))
+
+
+        try {
+            const response = await fetch(`${apis.backend}/api/products/substract-stock`, {
+                method: "POST",
+                body: formData
+            })
+
+            const responseData = await processRequests(response)
+            console.log(responseData)
+            if(response.ok) return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+       
+    }
     
 
     useEffect(()=>{
-        if(!appIsReady.current && loginData?.id && !location.includes("/payment")){ 
+        if(!appIsReady.current && loginData.length > 0 && !location.includes("/payment")){ 
             appIsReady.current = true
             message.loading("Cargando datos...")
             initPage()
@@ -985,69 +819,19 @@ export const AppProvider = ({ children }) => {
 
     const location = useLocation().pathname
     
-    const verifySessionUser = async (user_id, user_type) => {
-        console.log("user_id", user_id, "user_type", user_type);
-        if (!user_id) return false;
-        try {
-            const response = await fetch(
-                `${apis.backend}/verify-session?user_id=${user_id}&user_type=${user_type}`
-            );
-            const responseMsg = await processRequests(response);
-            console.log(responseMsg)
-            if (responseMsg.outOfDate) {
-                localStorage.removeItem("session_data");
-                if(location.includes("admin")) navigate("/")
-                throw new Error(responseMsg.msg);
-            }
-            return true;
-        } catch (error) {
-            console.error("Error verifying session:", error);
-            notification.error({
-                message: "Estado de su sesión",
-                description: error.message,
-                duration: 3,
-                pauseOnHover: false,
-                showProgress: true
-            })
-            return false;
-        }
-    };
-
-    const alreadyVerified = useRef(false)
-    useEffect(() => {
-        const checkSession = async () => {
-            const session_data = localStorage.getItem("session_data");
-            
-            let data;
-            try {
-                data = JSON.parse(session_data);
-                
-            } catch (error) {
-                console.error("Error parsing session data:", error);
-                localStorage.removeItem("session_data");
-                return;
-            }
-
-            const argentinaTime = dayjs().tz("America/Buenos_Aires");
-            console.log("Current time in Buenos Aires:", argentinaTime.format());
-
-            if(!data && location.includes("admin")) navigate("/")
-            if(location.includes("/payment")) return
-            await verifySessionUser(data?.id, data?.user_type);
-
-            setLoginData(data);
-            if (data?.admin) setIsAdmin(true);
-        };
-
-        if(!alreadyVerified.current){
-            alreadyVerified.current = true
-            checkSession()
-        }
-    }, [location]);
-    
-
-
     const [width, setWidth] = useState(window.innerWidth)
+
+    const alreadyVerifiedSession = useRef(false)
+    useEffect(()=>{
+        if(!alreadyVerifiedSession.current){
+            alreadyVerifiedSession.current = true
+            retrieveSession()
+        }
+    },[])
+
+    useEffect(()=>{
+        console.log("LoginData: ", loginData)
+    },[loginData])
 
     useEffect(() => {
         const handleResize = () => {
@@ -1062,19 +846,54 @@ export const AppProvider = ({ children }) => {
     return (
         <AppContext.Provider
             value={{
-                registerUser, loginAdmin, loginData, isAdmin, verifyAccountUser,
-                saveCategory, getCategories, categories, saveProduct,
-                productsList, getProducts, handleProducts, editingProduct, productId, showProductForm, showAlertProductForm,isDeletingProduct,
-                editProducts, deleteProducts, handlerCategories, editingCategory, categoryId, showCategoryForm, showAlertCategories, isDeletingCategory,
-                editCategory, width, getCountProductsWithCategory, deleteCategory, verifyOtpAdminCode, updateAdminPassword,
-                savePromotion, promotions, getAllPromotions, deletePromotion, handlePromotions, promotionID, editingPromotion,
-                editPromotion, saveBanner, banners, deleteBanner, handleBanner, bannerId, editingBanner, editBanner, editPageColors,
-                headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
-                subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, changeAdminPsw, setEditingAdminPsw, editingAdminPsw, getAllBanners,
-                closeSession, getPageColors, setOpenCart, openCart,
-                loginClient, verifyAuthCodeClients, createNewClient, isInitialising, initPage,
-                saveClientInfo, retrieveClientInfo, clientInfo, purchaseProduct, sendPurchaseConfirmation
+                //Categorias
+                saveCategory, getCategories, categories, getCountProductsWithCategory, deleteCategory,
+                //Categories handlers
+                handlerCategories, editingCategory, categoryId, showCategoryForm, showAlertCategories, isDeletingCategory,
+                editCategory,
+                //Productos
+                saveProduct, productsList, getProducts, deleteProducts,
+                //Products Handlers
+                editProducts, handleProducts, editingProduct, productId, showProductForm, showAlertProductForm, isDeletingProduct,
                 
+                // Utils
+                width,
+                
+                //Promociones
+                savePromotion, promotions, getAllPromotions, deletePromotion, 
+                //Promotions handlers
+                handlePromotions, promotionID, editingPromotion,editPromotion, 
+                //Banners
+                saveBanner, banners, deleteBanner, getAllBanners,
+                //Banners handlers
+                handleBanner, bannerId, editingBanner, editBanner, 
+                //Colores de la página
+                headerColor, contentColor, footerColor,
+                titleColor, subtitleColor, paragraphColor, getPageColors,
+                //Colors handlers
+                editPageColors,setHeaderColor, setContentColor, setFooterColor, setTitleColor,
+                setSubtitleColor, setParagraphColor,
+
+                //Carrito
+                setOpenCart, openCart,
+                //Compras
+                purchaseProduct, sendPurchaseConfirmation, substractStockInDb,
+
+                //Inicio de aplicación
+                isInitialising, initPage,
+            
+                
+                changeAdminPsw, setAdminPassword,
+                setEditingAdminPsw, editingAdminPsw,
+
+                //Clientes
+                loginData,
+                //Inicio de sesión
+                registerUser,
+                //Guardar información del cliente
+                saveClientInfo,
+                //Estados
+                clientInfo
             }}
             
         >

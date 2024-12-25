@@ -7,58 +7,44 @@ import Title from 'antd/es/typography/Title'
 import { WarningOutlined } from '@ant-design/icons'
 import "./ClientInfoView.css"
 import ClientDataTable from './Tables/ClientDataTable'
-import { Button, Drawer } from 'antd'
+import { Button, Drawer, message } from 'antd'
 import CartView from '../views/CartView/CartView'
+import useSession from "../../Context_Folders/VerifySession/useSession"
 function ClientInfoView() {
     const navigate = useNavigate()
-    const { loginData, retrieveClientInfo, clientInfo, closeSession, openCart, setOpenCart } = useAppContext()
+    const { loginData, openCart, setOpenCart } = useAppContext()
     const [userNotVerified, setUserNotVerified] = useState(false)
-    
+
+    const { closeSession } = useSession()
+
     useEffect(() => {
-        if (!loginData) navigate("/")
-        if (loginData && loginData.user_type !== "client") {
-            navigate("/")
+        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+            navigate("/login-client");
+        } else if (loginData[0] && !loginData[0]?.admin) {
             return
-        }
-
-        if (!loginData.is_verified) setUserNotVerified(true)
-
-    }, [loginData])
-
-
-    const [retrievingClientInfo, setRetrievingClientInfo] = useState(false)
-    const alreadyRetrieve = useRef(false)
-    const handleRetrevingClientInfo = async () => {
-        console.log("Ejecuta handleRetrevingClientInfo")
-        setRetrievingClientInfo(true)
-        await retrieveClientInfo()
-        setRetrievingClientInfo(false)
-    }
-    useEffect(() => {
-        if (!alreadyRetrieve.current && loginData?.is_verified === true) {
-            handleRetrevingClientInfo()
-            alreadyRetrieve.current = true
+        } else if (loginData[0] && loginData[0]?.admin) {
+            navigate("/admin-info");
         }
     }, [loginData])
 
     useEffect(()=>{
-        if(clientInfo.id) setUserNotVerified(false)
-    },[clientInfo])
+        setUserNotVerified(!loginData[0]?.is_verified)
+    },[loginData])
 
     const getUsernameFromEmail = (email) => email?.split("@")[0] || "Usuario"
 
-    
+
     return (
         <React.Fragment>
             <ClientHeader />
-            
+
             <div className='client-info-view'>
-            <Title level={3}>Información de usuario</Title>
-            <div className="client-info-name-and-button">
-                {!userNotVerified && <Title level={3}>Hola, {clientInfo[0]?.user_fullname}</Title>}
-                <Button type='primary' danger onClick={()=> closeSession()}>Cerrar sesión</Button>
-            </div>
-                {!userNotVerified && <ClientDataTable gettingData={retrievingClientInfo}/>}
+                <Title level={3}>Información de usuario</Title>
+                <div className="client-info-name-and-button">
+                    {!userNotVerified && <Title level={3}>Hola, {loginData[0]?.user_fullname}</Title>}
+                    <Button type='primary' danger onClick={() => closeSession()}>Cerrar sesión</Button>
+                </div>
+                {!userNotVerified && <ClientDataTable />}
                 <div className='client-info-view-content'>
                     {userNotVerified === true && <div className='client-info-view-content-warning'>
 
@@ -74,7 +60,7 @@ function ClientInfoView() {
             </div>
 
             {
-                openCart && <Drawer onClose={() => setOpenCart(false)} open={openCart} children={<CartView />}/>
+                openCart && <Drawer onClose={() => setOpenCart(false)} open={openCart} children={<CartView />} />
             }
         </React.Fragment>
     )

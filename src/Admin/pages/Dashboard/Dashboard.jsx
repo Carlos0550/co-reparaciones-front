@@ -4,13 +4,18 @@ import { useNavigate } from 'react-router-dom'
 import { Card, Col, Row, Statistic, Table } from 'antd'
 import "./Dashboard.css"
 function Dashboard() {
-  const { registerUser, loginUser, loginData } = useAppContext()
+  const { loginData } = useAppContext()
   const navigate = useNavigate()
-  const userName = loginData?.user_fullname
 
-  // useEffect(()=>{
-  //     if(!loginUser?.user_fullname) navigate("/")
-  // },[loginData])
+  useEffect(()=> {
+    if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+        navigate("/login-client");
+    } else if (loginData[0] && !loginData[0]?.admin) {
+        navigate("/client-info");
+    } else if (loginData[0] && loginData[0]?.admin) {
+        navigate("/admin-dashboard");
+    }
+},[loginData])
   return (
     <React.Fragment>
       <h1>Panel de administración</h1>

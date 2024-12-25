@@ -1,12 +1,23 @@
 import { Card, Col, Row } from 'antd'
 import Title from 'antd/es/typography/Title'
-import React from 'react'
+import React, { useEffect } from 'react'
 import BannersForm from './Forms/BannersForm'
 import BannersTable from './Tables/BannersTable'
 import { useAppContext } from '../../../AppContext'
+import { useNavigate } from 'react-router-dom'
 
 function PrincipalManager() {
-    const { editingBanner } = useAppContext()
+    const { editingBanner, loginData } = useAppContext()
+    const navigate = useNavigate()
+    useEffect(()=> {
+        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+            navigate("/login-client");
+        } else if (loginData[0] && !loginData[0]?.admin) {
+            navigate("/client-info");
+        } else if (loginData[0] && loginData[0]?.admin) {
+            return
+        }
+    },[loginData])
   return (
     <React.Fragment>
         <Title>Principal</Title>

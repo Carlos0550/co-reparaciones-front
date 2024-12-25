@@ -1,27 +1,23 @@
-import React, { useEffect, useRef, useState } from "react"
-import { Button, Form, Input, message } from "antd"
+import React, { useEffect, useState } from "react"
+import { Button, Form, Input } from "antd"
 import "./LoginClient.css"
 import { useNavigate } from "react-router-dom"
 import { useAppContext } from "../../AppContext"
+import useClientAuth from "../../Context_Folders/ClientAuth/useClientAuth"
 function LoginClient() {
     const navigate = useNavigate()
+    const { loginClientWithEmail, createNewClient, verifyAuthCodeClients } = useClientAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [isCreatingAccount, setIsCreatingAccount] = useState(false)
-    const [form] = Form.useForm();
+
     const [hideMainForm, setHiddenMainForm] = useState(false)
     const [currentUserEmail, setCurrentUserEmail] = useState(null)
 
-    const { loginClient, verifyAuthCodeClients, createNewClient, loginData, retrieveClientInfo } = useAppContext()
-    const alreadyRetrieve = useRef(false)
-    useEffect(()=>{
-        if(!alreadyRetrieve.current){
-            alreadyRetrieve.current = true
-            retrieveClientInfo()
-        }
-    },[])
+    const { loginData } = useAppContext()
+
     const onFinish = async (values) => {
         setIsLoading(true)
-        const result = isCreatingAccount ? await createNewClient(values.user_email) : await loginClient(values.user_email)
+        const result = isCreatingAccount ? await createNewClient(values.user_email) : await loginClientWithEmail(values.user_email)
         setIsLoading(false)
         if (result) {
             setCurrentUserEmail(values.user_email)
@@ -35,16 +31,21 @@ function LoginClient() {
         const result = await verifyAuthCodeClients(values.otp_code, currentUserEmail)
         if(result){
             setIsLoading(false)
-            navigate("/client-info")
+            location.href = "/client-info"
         }
         setIsLoading(false)
     }
 
-    useEffect(()=>{
-        if(!loginData?.id) return;
-        if(loginData && loginData?.user_type === "client") navigate("/client-info")
-        if(loginData && loginData?.user_type === "admin") navigate("/admin-dashboard")
-    },[loginData])
+    useEffect(()=> {
+            if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
+                return;
+            } else if (loginData[0] && !loginData[0]?.admin) {
+                navigate("/client-info");
+            } else if (loginData[0] && loginData[0]?.admin) {
+                navigate("/admin-dashboard");
+            }
+        },[loginData])
+
     return (
         <React.Fragment>
             <div className="login-container">

@@ -10,6 +10,9 @@ import RoadSVg from "../../../public/road_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24
 import ProductDetailsView from "../views/ProductDetailsView/ProductDetailsView.jsx"
 import CartView from "../views/CartView/CartView.jsx"
 import ClientHeader from "./ClientHeader.jsx"
+import PromotionsView from "../views/PromotionsView/PromotionsView.jsx"
+
+import EmptyImage from "../../../public/emptyImage.webp"
 function ClientLayout() {
     const { 
         footerColor,
@@ -18,7 +21,8 @@ function ClientLayout() {
         banners,
         productsList,
         setOpenCart,
-        openCart,    
+        openCart, 
+        promotions   
     } = useAppContext()
 
     const alreadyInit = useRef(false)
@@ -35,10 +39,25 @@ function ClientLayout() {
             <Routes>
                 <Route path="/" element={
                     <div className="main-client-container" style={{ backgroundColor: contentColor || "#ffffff" }}>
-                    {banners && banners.length > 0 && <BannersView />}
+                    
+                    
                     {productsList && productsList.length > 0
-                        ? <ProductsView />
-                        : <p>Todavía no hay nada por aquí, vuelve pronto.</p>
+                        ? (
+                            <>
+                                {banners && banners.length > 0 && <BannersView />}
+                                {promotions && promotions.length > 0 && <PromotionsView/>}
+                                <ProductsView />
+                            </>
+                        )
+                        : <div className="empty-container">
+                            <picture className="empty-image">
+                                <img src={EmptyImage} alt="" />
+                            </picture>
+                            <div className="empty-info">
+                                <h2 className="empty-title">No hay productos disponibles</h2>
+                                <p className="empty-subtitle">Pero no te preocupes, puedes volver más adelante</p>
+                            </div>
+                        </div>
                     }
                 </div>
                 }/>

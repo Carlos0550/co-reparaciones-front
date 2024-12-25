@@ -23,6 +23,15 @@ function ProductDetailsView() {
         setMainImage(imageData)
     }
 
+    useEffect(() => {
+        setTimeout(() => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            })
+        }, 100);
+    }, [])
+
     const [selectedQuantity, setSelectedQuantity] = useState(1)
     return (
         <React.Fragment>

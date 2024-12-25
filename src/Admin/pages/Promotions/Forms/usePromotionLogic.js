@@ -13,7 +13,6 @@ export const usePromotionLogic = (form, savePromotion, editPromotion, isEditing,
     useEffect(()=>{
         if(isEditing && promotionEditId){
             const oldPromotion = promotions.find(promotion => promotion.promotion_id === promotionEditId)
-            console.log(oldPromotion)
             form.setFieldsValue({
                 promotion_name: oldPromotion.promotion_name,
                 promotion_discount: oldPromotion.promotion_discount,
@@ -30,7 +29,6 @@ export const usePromotionLogic = (form, savePromotion, editPromotion, isEditing,
                 editing: true,
                 thumbUrl: image.image
             }))
-
             setFileList(newFileList)
 
             if(oldPromotion.promotion_type === "multiple"){
@@ -84,7 +82,7 @@ export const usePromotionLogic = (form, savePromotion, editPromotion, isEditing,
         } else {
             formData.append("promotion_products", JSON.stringify(products));
         }   
-        console.log(products)
+    
         const promotionValue = products.reduce((acc,item) => {
         return acc += parseFloat(item.price) * parseInt(item.quantity) 
         },0)
@@ -93,10 +91,6 @@ export const usePromotionLogic = (form, savePromotion, editPromotion, isEditing,
         const today = dayjs().format("YYYY-MM-DD");
         const promStart = dayjs(promotionStarts, "DD-MM-YYYY")
         formData.append("promotion_state", dayjs(promStart).isSame(today, "day") ? true : false);
-
-        fileList.forEach((file) => {
-            formData.append("promotion_images", file.originFileObj);
-        });
 
 
         const result = isEditing
