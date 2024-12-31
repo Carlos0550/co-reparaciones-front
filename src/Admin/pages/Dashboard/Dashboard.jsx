@@ -32,11 +32,6 @@ function Dashboard() {
       setGettingOrders(true);
       const result = await getOrders();
       setGettingOrders(false);
-      console.log(result)
-      setTimeout(() => {
-        notification.destroy();
-      }, 1000);
-
       
       if (!result) {
         message.info("No hay órdenes de compra");
@@ -61,9 +56,9 @@ useEffect(()=>{
     if (!alreadyGettingOrders.current) {
       alreadyGettingOrders.current = true;
       setTimeout(() => {
-        notification.open({
+        notification.info({
           message: "Obteniendo órdenes de compra...",
-          duration: 0,
+          duration: 2,
         });
       }, 200);
       fetchOrders();
