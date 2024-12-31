@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import "./CartView.css"
 import { useAppContext } from '../../../AppContext'
-import { getCartItems, updateQuantityCart } from '../../../utils/CartManager'
-import { Button, Space } from 'antd'
+import { Button, notification, Space } from 'antd'
 import { CreditCardOutlined, DeleteOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import AdvertismentAccountModal from '../AdvertismentAccountModal/AdvertismentAccountModal'
+import usePayment from '../../../Context_Folders/Payments/usePayment'
+import useCart from "../../../utils/CartManager"
 
 function CartView() {
-    const { subtitleColor, productsList, purchaseProduct, loginData } = useAppContext()
-    const [cart, setCart] = useState([])
+    const { subtitleColor, productsList, loginData } = useAppContext()
     const [totalCart, setTotalCart] = useState(0)
     
+    const { updateQuantityCart, getCartItems, cart, setCart } = useCart()
+    const { handlePayment, processigPayment } = usePayment()
+
     useEffect(() => {
         setCart(getCartItems())
     }, [])
@@ -34,7 +37,6 @@ function CartView() {
         setTotalCart(sumTotal)
     }
 
-    const [proccessingPurchase, setProccessingPurchase] = useState(false)
     const [showAdvertisment, setShowAdvertisement] = useState(false)
 
     useEffect(()=>{
@@ -83,9 +85,12 @@ function CartView() {
                     <p className='cart-total-amount'>
                         {parseFloat(totalCart).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
                     </p>
-                    <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={proccessingPurchase} onClick={()=>{
-                        setProccessingPurchase(true)
-                        purchaseProduct()
+                    <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={processigPayment} onClick={()=>{
+                        if(loginData[0]?.admin) return notification.warning({
+                            message: "No puedes realizar compras como administrador",
+                            description: "Por favor, inicia sesión como cliente para poder realizar compras"
+                        })                        
+                        handlePayment()
                     }}>
                     <CreditCardOutlined/> Finalizar compra
                 </Button>
