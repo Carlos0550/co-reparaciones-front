@@ -4,12 +4,14 @@ import { useAppContext } from '../../../AppContext'
 import { useLocation } from 'react-router-dom'
 import { ShoppingCartOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber } from 'antd'
-import { InsertCart } from '../../../utils/CartManager'
+import useCart from '../../../utils/CartManager'
 function ProductDetailsView() {
     const { productsList } = useAppContext()
     const product_id = useLocation().pathname.split("/")[2]
     const [selectedProduct, setSelectedProduct] = useState({})
     const [mainImage, setMainImage] = useState("")  
+
+    const { InsertCart } = useCart()
 
     useEffect(() => {
         if (productsList && productsList.length > 0) {
@@ -63,7 +65,7 @@ function ProductDetailsView() {
                             }
                         </p>
                         <Button onClick={() => {
-                            InsertCart(selectedProduct.id, selectedQuantity, selectedProduct.product_name)
+                            InsertCart(selectedProduct.id, selectedQuantity)
                             setSelectedQuantity(1)
                         }}>Añadir al <ShoppingCartOutlined /></Button>
                         <InputNumber min={1} max={selectedProduct.stock} value={selectedQuantity} onChange={(value) => setSelectedQuantity(value)} />
