@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import "./CartView.css"
 import { useAppContext } from '../../../AppContext'
 import { Button, notification, Space } from 'antd'
-import { CreditCardOutlined, DeleteOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { CreditCardOutlined, DeleteOutlined, MinusCircleOutlined, PlusOutlined, WhatsAppOutlined } from '@ant-design/icons'
 import AdvertismentAccountModal from '../AdvertismentAccountModal/AdvertismentAccountModal'
 import usePayment from '../../../Context_Folders/Payments/usePayment'
 import useCart from "../../../utils/CartManager"
@@ -12,7 +12,7 @@ function CartView() {
     const [totalCart, setTotalCart] = useState(0)
     
     const { updateQuantityCart, getCartItems, cart, setCart } = useCart()
-    const { handlePayment, processigPayment } = usePayment()
+    const { handlePayment, processigPayment, showWhatsapp, setShowWhatsapp } = usePayment()
 
     useEffect(() => {
         setCart(getCartItems())
@@ -43,6 +43,16 @@ function CartView() {
         if(loginData.length === 0) setShowAdvertisement(true)
     },[loginData])
 
+    const handleWhatsAppRedirect = () => {
+        localStorage.removeItem("current_cart");
+        setCart([])
+
+        const whatsappNumber = '+5403764100978'; 
+        const message = `Hola Cristian, recientemente te hice una compra, te comparto el recibo de compra.`;
+        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank'); 
+        setShowWhatsapp(false)
+      };
     return (
         <div className='cart-view-container'>
             <h1 style={{ color: subtitleColor || "#f0f0f0" }} className='cart-view-title'>Retoma desde donde lo dejaste</h1>
@@ -85,7 +95,7 @@ function CartView() {
                     <p className='cart-total-amount'>
                         {parseFloat(totalCart).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
                     </p>
-                    <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={processigPayment} onClick={()=>{
+                    {!showWhatsapp ? <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={processigPayment} onClick={()=>{
                         if(loginData[0]?.admin) return notification.warning({
                             message: "No puedes realizar compras como administrador",
                             description: "Por favor, inicia sesión como cliente para poder realizar compras"
@@ -93,7 +103,9 @@ function CartView() {
                         handlePayment()
                     }}>
                     <CreditCardOutlined/> Finalizar compra
-                </Button>
+                    </Button>
+                : <Button icon={<WhatsAppOutlined/>} onClick={()=> handleWhatsAppRedirect()}>Ir a Whatsapp</Button>    
+                }
                 </div>
                 
             </div>

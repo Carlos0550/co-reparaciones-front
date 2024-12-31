@@ -9,6 +9,7 @@ import useCart from "../../utils/CartManager";
 function usePayment() {
     const { setOpenCart, loginData } = useAppContext()
     const { setCart } = useCart()
+    const [showWhatsapp, setShowWhatsapp] = useState(false)
     // const purchaseProduct = async() => {
     //     await retrieveClientInfo(true)
     //     const clientData = localStorage.getItem("client_info");
@@ -137,9 +138,7 @@ function usePayment() {
         const result2 = await substractStockInDb()
         const result3 = await generatePdfReceipt()
         setProcessigPayment(false)
-        localStorage.removeItem("current_cart");
-        setCart([])
-        setOpenCart(false)
+
 
         if(result1 && result2 && result3){
             notification.success({
@@ -183,8 +182,8 @@ function usePayment() {
 
                 notification.info({
                     message: "Recibo generado con éxito",
-                    description: "Serás redirigido a tu recibo",
-                    duration: 3,
+                    description: "Deberás sacar captura del recibo, y volver a esta sección para ser dirigido al whatsapp de soporte para enviar dicho recibo",
+                    duration: 4,
                     showProgress: true,
                     pauseOnHover: false
                 });
@@ -198,7 +197,8 @@ function usePayment() {
                     link.click();
                     document.body.removeChild(link);
                     URL.revokeObjectURL(downloadUrl);
-                }, 2500);
+                    setShowWhatsapp(true)
+                }, 4500);
     
                 return true;
             } else {
@@ -228,7 +228,9 @@ function usePayment() {
     return {
         handlePayment,
         processigPayment,
-        generatePdfReceipt
+        generatePdfReceipt,
+        showWhatsapp, 
+        setShowWhatsapp
     }
 }
 
