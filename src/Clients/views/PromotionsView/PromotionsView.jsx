@@ -57,56 +57,58 @@ function PromotionsView() {
 
     const activePromotions = promotions.filter(prom => prom.promotion_state === true);
 
-    const slides = activePromotions.length <= 4 
-    ? [...activePromotions, ...activePromotions] 
-    : activePromotions;
-
+    const slides = activePromotions.length <= 4
+        ? [...activePromotions, ...activePromotions]
+        : activePromotions;
+        
     return (
         <React.Fragment>
-            <h1 className="promotions-title">{randomTitles}</h1>
-            {slides.length === 0 ? (
-                <p className="no-promotions">Actualmente no hay promociones activas.</p>
+            {promotions.length > 3 ? (
+                null
             ) : (
-                <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
-                navigation
-                pagination={{ clickable: true }}
-                autoplay={{ delay: 3000 }}
-                loop
-                spaceBetween={10} // Asegura un espacio consistente
-                slidesPerGroup={width < 768 ? 1 : 2} // Controla cuántas tarjetas avanzan
-                centeredSlides={false} // Alinea las tarjetas al inicio del carrusel
-                breakpoints={{
-                    320: { slidesPerView: 1, spaceBetween: 10 }, // Móvil pequeño
-                    480: { slidesPerView: 1.5, spaceBetween: 10 }, // Pantallas medianas
-                    768: { slidesPerView: 2, spaceBetween: 15 }, // Tablets
-                    1024: { slidesPerView: 3, spaceBetween: 20 }, // Escritorio
-                }}
-                className="promotions-swiper"
-            >
-                    {slides.map((promotion) => (
-                        <SwiperSlide key={`${promotion.promotion_id}- ${v4()}`} className='swiper-slide'>
-                            <div className="promotion-card" onClick={() => showModal(promotion)}>
-                                <picture className="promotion-image">
-                                    <img 
-                                        src={promotion.images?.[0]?.image || '/path/to/placeholder.jpg'} 
-                                        alt={promotion.promotion_name} 
-                                    />
-                                </picture>
-                                <div className="promotion-info">
-                                    <p>{substractWords(promotion.promotion_name)}</p>
-                                    <p>{getPromotionPrice(promotion.promotion_data, promotion.promotion_type, promotion.promotion_discount)}</p>
-                                    {promotion.promotion_discount > 0 && (
-                                        <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
-                                            <s>{getPromotionPrice(promotion.promotion_data, promotion.promotion_type, 0)}</s>
-                                            <p>{promotion.promotion_discount}%</p>
-                                        </div>
-                                    )}
+                <>
+                    <h1 className="promotions-title">{randomTitles}</h1>
+                    <Swiper
+                        modules={[Navigation, Pagination, Autoplay]}
+                        navigation
+                        pagination={{ clickable: true }}
+                        autoplay={{ delay: 3000 }}
+                        loop
+                        spaceBetween={10} // Asegura un espacio consistente
+                        slidesPerGroup={width < 768 ? 1 : 2} // Controla cuántas tarjetas avanzan
+                        centeredSlides={false} // Alinea las tarjetas al inicio del carrusel
+                        breakpoints={{
+                            320: { slidesPerView: 1, spaceBetween: 10 }, // Móvil pequeño
+                            480: { slidesPerView: 1.5, spaceBetween: 10 }, // Pantallas medianas
+                            768: { slidesPerView: 2, spaceBetween: 15 }, // Tablets
+                            1024: { slidesPerView: 3, spaceBetween: 20 }, // Escritorio
+                        }}
+                        className="promotions-swiper"
+                    >
+                        {slides.map((promotion) => (
+                            <SwiperSlide key={`${promotion.promotion_id}- ${v4()}`} className='swiper-slide'>
+                                <div className="promotion-card" onClick={() => showModal(promotion)}>
+                                    <picture className="promotion-image">
+                                        <img
+                                            src={promotion.images?.[0]?.image || '/path/to/placeholder.jpg'}
+                                            alt={promotion.promotion_name}
+                                        />
+                                    </picture>
+                                    <div className="promotion-info">
+                                        <p>{substractWords(promotion.promotion_name)}</p>
+                                        <p>{getPromotionPrice(promotion.promotion_data, promotion.promotion_type, promotion.promotion_discount)}</p>
+                                        {promotion.promotion_discount > 0 && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                                                <s>{getPromotionPrice(promotion.promotion_data, promotion.promotion_type, 0)}</s>
+                                                <p>{promotion.promotion_discount}%</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </>
             )}
 
             {isModalVisible && (
