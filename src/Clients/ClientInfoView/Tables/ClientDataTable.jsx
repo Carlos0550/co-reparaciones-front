@@ -56,7 +56,7 @@ function ClientDataTable() {
                 return(
                     <ul>
                         {parsedProducts.map(product => (
-                            <li>{product?.quantity} {product?.product_name} {parseFloat(product?.price).toLocaleString("es-AR",{style: "currency", currency: "ARS"})}</li>
+                            <li key={product?.id}>{product?.quantity} {product?.product_name} {parseFloat(product?.price).toLocaleString("es-AR",{style: "currency", currency: "ARS"})}</li>
                         ))}
                     </ul>
                 )
