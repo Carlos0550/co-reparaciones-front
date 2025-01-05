@@ -58,7 +58,6 @@ const {
   openModal,
   setOpenModal,
   clientData } = useOrders(processOrders, fetchOrders)
-
   return (
     <React.Fragment>
       <h1>Panel de administración</h1>
@@ -68,6 +67,8 @@ const {
           columns={orderCols}
           dataSource={orders}
           loading={gettingOrders}
+          rowKey={(record) => record.order_id}
+          scroll={{x: 800}}
         />
       </Card>
       {openModal && (
