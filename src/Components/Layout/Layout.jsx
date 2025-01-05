@@ -65,15 +65,6 @@ function LayoutComponent({ component }) {
                                         >
                                             <img src={BannerSvg} width={24} height={24}/> Principal
                                         </li>
-
-                                        <li
-                                            onClick={()=> {
-                                                if (width < 868) setResizeSideBar(true)
-                                                navigate("/admin-manage-clients")
-                                            }}
-                                        >
-                                            <UserOutlined style={{ fontSize: "22px" }} /> Clientes
-                                        </li>
                                         <li
                                             onClick={()=> {
                                                 if (width < 868) setResizeSideBar(true)
