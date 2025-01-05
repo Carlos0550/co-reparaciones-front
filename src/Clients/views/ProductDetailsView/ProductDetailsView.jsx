@@ -64,9 +64,12 @@ function ProductDetailsView() {
                                 selectedProduct.stock === 1 ? "Última unidad" : "Agotado"
                             }
                         </p>
-                        <Button onClick={() => {
+                        <Button 
+                        disabled={selectedProduct.stock === 0}
+                        onClick={() => {
                             InsertCart(selectedProduct.id, selectedQuantity)
                             setSelectedQuantity(1)
+                            
                         }}>Añadir al <ShoppingCartOutlined /></Button>
                         <InputNumber min={1} max={selectedProduct.stock} value={selectedQuantity} onChange={(value) => setSelectedQuantity(value)} />
                         <p dangerouslySetInnerHTML={{ __html: selectedProduct?.product_description }}></p>

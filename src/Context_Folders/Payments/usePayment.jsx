@@ -104,29 +104,27 @@ function usePayment() {
     
     const substractStockInDb = async(products) => {
         if(!products) return;
-        const formData = new FormData()
-
-        const processedProducts = products.map(prod => {
-            return {
-                id: prod.id,
-                quantity: prod.quantity
-            }
-        })
-        formData.append("products", JSON.stringify(processedProducts))
-
-
         try {
-            const response = await fetch(`${apis.backend}/api/products/substract-stock`, {
+            const formData = new FormData()
+
+            const processedProducts = products.map(prod => {
+                return {
+                    id: prod.id,
+                    quantity: prod.quantity
+                }
+            })
+            formData.append("products", JSON.stringify(processedProducts))
+
+            await fetch(`${apis.backend}/api/products/substract-stock`, {
                 method: "POST",
                 body: formData
             })
 
-            if(response.ok) return true
+            return true
         } catch (error) {
             console.log(error)
             return false
         }
-       
     }
 
     const generatePdfReceipt = async () => {
@@ -176,9 +174,10 @@ function usePayment() {
                     document.body.removeChild(link);
                     URL.revokeObjectURL(downloadUrl);
                     setShowWhatsapp(true)
-                }, 4500);
+                }, 4000);
     
                 return true;
+
             } else {
                 notification.error({
                     message: "No pudimos generar el recibo",
@@ -187,6 +186,7 @@ function usePayment() {
                     showProgress: true,
                     pauseOnHover: false
                 });
+
                 return false;
             }
         } catch (error) {
@@ -206,18 +206,17 @@ function usePayment() {
     const handlePayment = async() => {
         setProcessigPayment(true)
         const result1 = await sendPurchaseConfirmation()
-        const result2 = await substractStockInDb()
+        await substractStockInDb()
         const result3 = await generatePdfReceipt()
+        localStorage.removeItem("current_cart");
+
+        setCart([])
         setProcessigPayment(false)
 
-
-        if(result1 && result2 && result3){
-            notification.success({
-                message: "Compra realizada con exito",
-                description: "Gracias por tu compra",
-                duration: 3,
-                pauseOnHover: false
-            })
+        if(result1 && result3){
+            return true
+        }else{
+            return false
         }
     };
 

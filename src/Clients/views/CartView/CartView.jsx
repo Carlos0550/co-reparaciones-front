@@ -44,9 +44,6 @@ function CartView() {
     },[loginData])
 
     const handleWhatsAppRedirect = () => {
-        localStorage.removeItem("current_cart");
-        setCart([])
-
         const whatsappNumber = '+5403764100978'; 
         const message = `Hola Cristian, recientemente te hice una compra, te comparto el recibo de compra.`;
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -95,12 +92,16 @@ function CartView() {
                     <p className='cart-total-amount'>
                         {parseFloat(totalCart).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
                     </p>
-                    {!showWhatsapp ? <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={processigPayment} onClick={()=>{
+                    {!showWhatsapp ? <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={processigPayment} onClick={async()=>{
                         if(loginData[0]?.admin) return notification.warning({
                             message: "No puedes realizar compras como administrador",
                             description: "Por favor, inicia sesión como cliente para poder realizar compras"
                         })                        
-                        handlePayment()
+                        const resultPayment = await handlePayment()
+                        if(resultPayment){
+                            localStorage.removeItem("current_cart")
+                            setCart([])
+                        }
                     }}>
                     <CreditCardOutlined/> Finalizar compra
                     </Button>
