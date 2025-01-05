@@ -66,14 +66,13 @@ function usePayment() {
     // }
     
     const sendPurchaseConfirmation = async () => {
-        const clientData = localStorage.getItem("client_info");
         const cart = localStorage.getItem("current_cart");
 
         const products = JSON.parse(cart);
         const formData = new FormData();
 
         formData.append("products", JSON.stringify(products));
-        formData.append("client_data", clientData);
+        formData.append("client_data", JSON.stringify(loginData[0]));
     
         try {
             const response = await fetch(`${apis.backend}/api/admins/send-purchase-confirmation`, {
@@ -130,26 +129,6 @@ function usePayment() {
        
     }
 
-
-    const [processigPayment, setProcessigPayment] = useState(false)
-    const handlePayment = async() => {
-        setProcessigPayment(true)
-        const result1 = await sendPurchaseConfirmation()
-        const result2 = await substractStockInDb()
-        const result3 = await generatePdfReceipt()
-        setProcessigPayment(false)
-
-
-        if(result1 && result2 && result3){
-            notification.success({
-                message: "Compra realizada con exito",
-                description: "Gracias por tu compra",
-                duration: 3,
-                pauseOnHover: false
-            })
-        }
-    };
-
     const generatePdfReceipt = async () => {
         const currentCart = localStorage.getItem("current_cart");
         if (!currentCart) {
@@ -177,7 +156,6 @@ function usePayment() {
                 if (pdfBlob.type !== "application/pdf") {
                     pdfBlob = new Blob([pdfBlob], { type: "application/pdf" });
                 }
-                console.log("PDF Blob:", pdfBlob);
                 const downloadUrl = URL.createObjectURL(pdfBlob);
 
                 notification.info({
@@ -223,7 +201,25 @@ function usePayment() {
             return false;
         }
     };
-    
+
+    const [processigPayment, setProcessigPayment] = useState(false)
+    const handlePayment = async() => {
+        setProcessigPayment(true)
+        const result1 = await sendPurchaseConfirmation()
+        const result2 = await substractStockInDb()
+        const result3 = await generatePdfReceipt()
+        setProcessigPayment(false)
+
+
+        if(result1 && result2 && result3){
+            notification.success({
+                message: "Compra realizada con exito",
+                description: "Gracias por tu compra",
+                duration: 3,
+                pauseOnHover: false
+            })
+        }
+    };
 
     return {
         handlePayment,
