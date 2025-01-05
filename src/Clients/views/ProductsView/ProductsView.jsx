@@ -4,14 +4,14 @@ import "./ProductsView.css"
 import { Input, Select } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
-function ProductsView() {
-    const { productsList, titleColor, contentColor, categories } = useAppContext()
+function ProductsView({products}) {
+    const { titleColor, contentColor, categories } = useAppContext()
 
     const [searchText, setSearchText] = useState("")
     const [categoryId, setCategoryId] = useState(null)
 
     const filterProducts = () => {
-        return productsList.filter((product) => {
+        return products.filter((product) => {
             const matchesSearch = product.product_name.toLowerCase().includes(searchText.toLowerCase())
             const matchesCategory = categoryId ? product.product_category === categoryId : true
             return matchesSearch && matchesCategory

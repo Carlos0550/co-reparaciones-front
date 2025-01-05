@@ -135,3 +135,9 @@ footer {
   height: 100%;
   object-fit: cover;
 }
+
+.pagination_component{
+  margin: 0 auto;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
