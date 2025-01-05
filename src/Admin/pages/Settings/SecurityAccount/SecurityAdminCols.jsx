@@ -2,7 +2,7 @@ import React from 'react'
 import dayjs from 'dayjs'
 import { Button } from 'antd'
 import { useAppContext } from '../../../../AppContext'
-import useSession from "../../../../Context_Folders/VerifySession/useSession"
+import useSession from "../../../../Context_Folders/Session/useSession"
 export default function getSecurityAdminColumns() {
     const { setEditingAdminPsw } = useAppContext()
     const { closeSession } = useSession()
