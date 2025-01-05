@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import "./ClientLayout.css"
 import { useAppContext } from "../../AppContext.jsx"
-import { Button, Drawer } from "antd"
+import { Button, Drawer, Pagination } from "antd"
 import { Route, Routes } from "react-router-dom"
 import BannersView from "../views/BannersView/BannersView.jsx"
 import ProductsView from "../views/ProductsView/ProductsView.jsx"
@@ -13,6 +13,9 @@ import ClientHeader from "./ClientHeader.jsx"
 import PromotionsView from "../views/PromotionsView/PromotionsView.jsx"
 
 import EmptyImage from "../../../public/emptyImage.webp"
+import NotFound from "../../NotFound/NotFound.jsx"
+
+
 function ClientLayout() {
     const { 
         footerColor,
@@ -33,6 +36,24 @@ function ClientLayout() {
         }
     },[])
 
+    const [currentPage, setCurrentPage] = useState(1)
+    const [productsPerPage] = useState(10);
+
+    const indexOfLastProduct = currentPage * productsPerPage
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage
+    const currentProducts = productsList.slice(indexOfFirstProduct, indexOfLastProduct)
+
+    const paginate = (pageNumber) => {
+        setCurrentPage(pageNumber)
+        setTimeout(() => {
+            window.scrollTo({
+                top: 50,
+                behavior: 'smooth',
+                
+            })
+        }, 100);
+    }
+
     return (
         <React.Fragment>
             <ClientHeader/>
@@ -46,7 +67,14 @@ function ClientLayout() {
                             <>
                                 {banners && banners.length > 0 && <BannersView />}
                                 {promotions && promotions.length > 0 && <PromotionsView/>}
-                                <ProductsView />
+                                <ProductsView products={currentProducts} />
+                                <Pagination 
+                                    current={currentPage}
+                                    pageSize={productsPerPage}
+                                    total={productsList.length}
+                                    onChange={paginate}
+                                    className="pagination_component"
+                                />
                             </>
                         )
                         : <div className="empty-container">
@@ -62,6 +90,7 @@ function ClientLayout() {
                 </div>
                 }/>
             <Route path="/product-details/:product_id" element={<ProductDetailsView/>}/>
+            <Route path="*" element={<NotFound/>}/>  
             </Routes>
             <footer style={{ backgroundColor: footerColor || "#ffffff" }}>
                 <div className="footer-content">

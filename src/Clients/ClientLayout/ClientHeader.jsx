@@ -4,8 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../AppContext';
 import Logo from "../../../public/logo.jpeg"
 import "./ClientLayout.css"
+import useSession from '../../Context_Folders/Session/useSession';
 function ClientHeader() {
-    const { width, paragraphColor, headerColor, loginData, setOpenCart, isAdmin} = useAppContext()
+
+    const { width, paragraphColor, headerColor, setOpenCart, isAdmin, loginData} = useAppContext()
+    // const {  } = useSession()
     const navigate = useNavigate()
 
     const headerContent = [
@@ -30,6 +33,13 @@ function ClientHeader() {
             name: "🔌 Cables y Adaptadores"
         }
     ]
+
+    function handleRedirect() {
+        console.log(loginData)
+        if(loginData?.user_type === "client")navigate("/client-info")
+        if(loginData?.user_type === "admin")navigate("/admin-dashboard")
+        else navigate("/login-client")
+    }
   return (
     <header className="header" >
                 <nav className="navbar" style={{ backgroundColor: headerColor || "#ffffff" }}>
@@ -51,15 +61,7 @@ function ClientHeader() {
                     </ul>
                     <Space>
                     <Button 
-                        onClick={() => {
-                            if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-                                navigate("/login-client");
-                            } else if (loginData[0] && !loginData[0]?.admin) {
-                                navigate("/client-info");
-                            } else if (loginData[0] && loginData[0]?.admin) {
-                                navigate("/admin-dashboard");
-                            }
-                        }} 
+                        onClick={() => handleRedirect()} 
                         icon={<UserOutlined />} 
                     />
 
