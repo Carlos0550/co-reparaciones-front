@@ -12,7 +12,7 @@ import EditorModal from './Components/Modales/EditorModal';
 import Loader from "./utils/Loader"
 
 import setAdminPassword from "./Context_Folders/AdminAuth/SetAdminPsw"
-import useRetriveSession from './Context_Folders/VerifySession/useSession';
+import useSession from './Context_Folders/Session/useSession';
 
 
 
@@ -30,10 +30,10 @@ export const useAppContext = () => {
 }
 
 export const AppProvider = ({ children }) => {
-    const navigate = useNavigate()
 
     const { retrieveSession, loginData, 
-        setLoginData } = useRetriveSession()
+        setLoginData } = useSession()
+
     const registerUser = async (userData) => {
         try {
             const response = await fetch(`${apis.backend}/api/users/register-user`, {
@@ -622,7 +622,8 @@ export const AppProvider = ({ children }) => {
     }
 
     const saveClientInfo = async(clientData) => {
-        console.log(loginData.id)
+        console.log("lOGINdATA: ",loginData)
+        console.log("ClientData: ",clientData)
         try {
             const response = await fetch(`${apis.backend}/api/clients/save-client-info?client_id=${encodeURI(loginData.id)}`,{
                 method: "POST",
@@ -687,6 +688,7 @@ export const AppProvider = ({ children }) => {
         try {
             const response = await fetch(`${apis.backend}/api/orders/get-orders`)
 
+            if(response.status === 404) return false;
             const responseData = await processRequests(response)
             if(!response.ok) throw new Error(responseData.msg)
 
@@ -701,11 +703,25 @@ export const AppProvider = ({ children }) => {
     
     const [clientOrder, setClientOrder] = useState([])
     const getClientOrder = async(clientId) => {
-        console.log(clientId)
+
+        if(!clientId){
+            notification.info({
+                message: "Tus datos estan en proceso",
+                description: "No pudimos buscar tus ordenes porque tus datos estan en proceso, espera unos segundos e intenta de nuevo",
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+
+            return false
+        }
         setGettingClientOrder(true)
 
         try {
             const response = await fetch(`${apis.backend}/api/clients/get-client-orders/${clientId}`)
+            console.log(response)
+            if(response.status === 404) return;
+            const responseData = await processRequests(response)
 
             if(response.status === 400){
                 setTimeout(() => {
@@ -720,7 +736,6 @@ export const AppProvider = ({ children }) => {
 
                 return;
             }
-            const responseData = await processRequests(response)
             if(!response.ok) throw new Error(responseData.msg)
 
             return responseData
@@ -768,6 +783,8 @@ export const AppProvider = ({ children }) => {
             window.removeEventListener('resize', handleResize)
         }
     },[])
+
+
 
     return (
         <AppContext.Provider
