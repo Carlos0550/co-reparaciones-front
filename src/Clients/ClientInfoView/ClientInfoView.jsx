@@ -9,37 +9,39 @@ import "./ClientInfoView.css"
 import ClientDataTable from './Tables/ClientDataTable'
 import { Button, Drawer, message } from 'antd'
 import CartView from '../views/CartView/CartView'
-import useSession from "../../Context_Folders/VerifySession/useSession"
+import useSession from "../../Context_Folders/Session/useSession"
 function ClientInfoView() {
     const navigate = useNavigate()
     const { loginData, openCart, setOpenCart, getClientOrder, setGettingClientOrder, setClientOrder } = useAppContext()
     const [userNotVerified, setUserNotVerified] = useState(false)
 
-    const { closeSession } = useSession()
+    const { closeSession, handleVerifyRoleAndSession } = useSession()
 
-    const alreadyGettedClientOrder = useRef(false)    
     const handleGetClientOrder = async () => {
-        if(!alreadyGettedClientOrder.current){
-            alreadyGettedClientOrder.current = true
-            setGettingClientOrder(true)
-            const result = await getClientOrder(loginData[0]?.client_uuid)
+
+        setGettingClientOrder(true)
+        const result = await getClientOrder(loginData[0]?.client_uuid)
+
+        if(!result){
+            setClientOrder([])
             setGettingClientOrder(false)
-            setClientOrder(result.orders)
+            return
         }
+        setGettingClientOrder(false)
+        setClientOrder(result.orders)
     }
 
+    const alreadyVerified = useRef(false)
     useEffect(() => {
-        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-            navigate("/login-client");
-        } else if (loginData[0] && !loginData[0]?.admin) {
+        if (!alreadyVerified.current) {
+            alreadyVerified.current = true
+            handleVerifyRoleAndSession()
             handleGetClientOrder()
-        } else if (loginData[0] && loginData[0]?.admin) {
-            navigate("/admin-info");
         }
-    }, [loginData])
+    }, [])
 
     useEffect(()=>{
-        setUserNotVerified(!loginData[0]?.is_verified)
+        setUserNotVerified(loginData && !loginData[0]?.is_verified || false)
     },[loginData])
 
     const getUsernameFromEmail = (email) => email?.split("@")[0] || "Usuario"
@@ -54,7 +56,7 @@ function ClientInfoView() {
                     {!userNotVerified && <Title level={3}>Hola, {loginData[0]?.user_fullname}</Title>}
                     <Button type='primary' danger onClick={() => closeSession()}>Cerrar sesión</Button>
                 </div>
-                {!userNotVerified && <ClientDataTable/>}
+                {!userNotVerified && <ClientDataTable getClientOrder={()=>handleGetClientOrder()}/>}
                 <div className='client-info-view-content'>
                     {userNotVerified === true && <div className='client-info-view-content-warning'>
 

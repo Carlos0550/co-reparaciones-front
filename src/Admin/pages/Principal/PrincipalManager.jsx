@@ -1,23 +1,26 @@
 import { Card, Col, Row } from 'antd'
 import Title from 'antd/es/typography/Title'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import BannersForm from './Forms/BannersForm'
 import BannersTable from './Tables/BannersTable'
 import { useAppContext } from '../../../AppContext'
-import { useNavigate } from 'react-router-dom'
+
+import useSession from '../../../Context_Folders/Session/useSession'
 
 function PrincipalManager() {
-    const { editingBanner, loginData } = useAppContext()
-    const navigate = useNavigate()
+    const { editingBanner } = useAppContext()
+
+    const { handleVerifyRoleAndSession } = useSession()
+
+    
+    const alreadyVerified = useRef(false)
     useEffect(()=> {
-        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-            navigate("/login-client");
-        } else if (loginData[0] && !loginData[0]?.admin) {
-            navigate("/client-info");
-        } else if (loginData[0] && loginData[0]?.admin) {
-            return
+        if(!alreadyVerified.current){
+            alreadyVerified.current = true
+            handleVerifyRoleAndSession()
         }
-    },[loginData])
+    },[])
+
   return (
     <React.Fragment>
         <Title>Principal</Title>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Row, Col, Card, Button, message } from 'antd'
 import AddCategories from './Forms/AddCategories'
 import AddProducts from './Forms/AddProducts'
@@ -7,9 +7,14 @@ import ProductsTable from './Tables/ProductsTable'
 import { useAppContext } from '../../../AppContext'
 import Title from 'antd/es/typography/Title'
 import { useNavigate } from 'react-router-dom'
+import useSession from '../../../Context_Folders/Session/useSession'
 function ProductsManager() {
-    const { editingProduct, getProducts, loginData } = useAppContext()
+    const { editingProduct, getProducts } = useAppContext()
+
+    const { closeSession, loginData } = useSession()
 const navigate = useNavigate()
+
+const { handleVerifyRoleAndSession } = useSession()
     const [gettingProducts, setGettingProducts] = useState(false)
     const handleGetProducts = async() => {
         const hiddenMessage = message.loading("Obteniendo productos...")
@@ -18,15 +23,17 @@ const navigate = useNavigate()
         setGettingProducts(false)
         hiddenMessage()
     }
-useEffect(()=> {
-        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-            navigate("/login-client");
-        } else if (loginData[0] && !loginData[0]?.admin) {
-            navigate("/client-info");
-        } else if (loginData[0] && loginData[0]?.admin) {
-            return
+    const alreadyVerified = useRef(false)
+    useEffect(() => {
+        
+        if (!alreadyVerified.current) {
+            alreadyVerified.current = true
+            console.log("Verificando rol...")
+            const result = handleVerifyRoleAndSession()
+            console.log(result)
         }
-    },[loginData])
+    }, [])
+    
   return (
     <React.Fragment>
       <Title>

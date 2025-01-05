@@ -1,11 +1,11 @@
 import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Button, Card, Col, ColorPicker, message, Row, Table } from 'antd'
 import Title from 'antd/es/typography/Title'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useAppContext } from '../../../AppContext'
 import getSecurityAdminColumns from './SecurityAccount/SecurityAdminCols'
-import useSession from "../../../Context_Folders/VerifySession/useSession"
-import { useNavigate } from 'react-router-dom'
+
+import useSession from "../../../Context_Folders/Session/useSession"
 
 // Función para convertir RGB a HEX
 function rgbToHex(r, g, b) {
@@ -15,12 +15,11 @@ function rgbToHex(r, g, b) {
 function SettingsManager() {
   const [hasChanged, setHasChanged] = useState(false)
   const [updatingValues, setUpdatingValues] = useState(false)
-  const navigate = useNavigate()
+  const { handleVerifyRoleAndSession } = useSession()
   const { editPageColors, headerColor, setHeaderColor, contentColor, setContentColor, footerColor, setFooterColor, titleColor, setTitleColor,
-    subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor } = useAppContext()
+    subtitleColor, setSubtitleColor, paragraphColor, setParagraphColor, loginData } = useAppContext()
 
-  const { loginData } = useAppContext()
-  const dinamicUpdateValues = async() => {
+  const dinamicUpdateValues = async () => {
     setUpdatingValues(true)
     const hiddenMessage = message.loading("Guardando cambios...")
     const formData = new FormData()
@@ -31,13 +30,13 @@ function SettingsManager() {
     formData.append("subtitleColor", subtitleColor)
     formData.append("paragraphColor", paragraphColor)
     const result = await editPageColors(formData)
-      setUpdatingValues(false)
-      hiddenMessage()
-      if(result){
-        message.success("Cambios guardados correctamente")
-        setHasChanged(false)
-      }
-    
+    setUpdatingValues(false)
+    hiddenMessage()
+    if (result) {
+      message.success("Cambios guardados correctamente")
+      setHasChanged(false)
+    }
+
   }
 
   const handleColorChange = (setColor) => (color) => {
@@ -50,24 +49,38 @@ function SettingsManager() {
 
   const columns = getSecurityAdminColumns()
 
-useEffect(()=> {
-        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-            navigate("/login-client");
-        } else if (loginData[0] && !loginData[0]?.admin) {
-            navigate("/client-info");
-        } else if (loginData[0] && loginData[0]?.admin) {
-            return
-        }
-    },[loginData])
+  const alreadyVerified = useRef(false)
+  useEffect(() => {
+    if (!alreadyVerified.current) {
+      alreadyVerified.current = true
+      handleVerifyRoleAndSession()
+    }
+  }, [])
+
+  const [clientData, setClientData] = useState([])  
+  
+      useEffect(()=>{
+          if(loginData && loginData[0]){
+              const customerData = [
+                  {
+                      admin_name: loginData[0]?.admin_name,
+                      admin_email: loginData[0]?.admin_email,
+                      session_timeout: loginData[0]?.session_timeout
+                  }
+              ];
+              setClientData(customerData)
+          }
+  
+      },[loginData])
   return (
     <React.Fragment>
       <Title>Ajustes generales</Title>
       <Title level={3}>Administra aquí la configuración de tu tienda</Title>
       <Card title="Sesión y seguridad">
-        <p><InfoCircleOutlined/> Estos son los ajustes de seguridad de tu cuenta como administrador</p>
+        <p><InfoCircleOutlined /> Estos son los ajustes de seguridad de tu cuenta como administrador</p>
         <Table
           columns={columns}
-          dataSource={loginData}
+          dataSource={clientData}
           pagination={false}
           scroll={{ x: 800 }}
         />

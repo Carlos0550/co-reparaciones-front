@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react"
-import { Button,Form, Input} from "antd"
+import React, { useEffect, useRef, useState } from "react"
+import { Button, Form, Input } from "antd"
 import "./Login.css"
-import { useNavigate } from "react-router-dom"
+
 import { useAppContext } from "../../../AppContext"
 
 import verifyOtpAdmin from "../../../Context_Folders/AdminAuth/verifyOtpAdmin"
-import useLoginAdmin from "../../../Context_Folders/AdminAuth/useLoginAdmin"
+import useSession from "../../../Context_Folders/Session/useSession"
 function Login() {
-    const navigate = useNavigate()
-    const { loginAdmin, verifyAdminAccount } = useLoginAdmin()
+
+    const { loginAdmin, verifyAdminAccount } = useSession()
     const [isLoading, setIsLoading] = useState(false)
     const [hiddenPsw, setHiddenPsw] = useState(true)
     const [showOtpInput, setShowOtpInput] = useState(false)
@@ -18,8 +18,9 @@ function Login() {
     const [user_email, setUserEmail] = useState("")
 
 
-    const { setAdminPassword, loginData} = useAppContext()
-  
+    const { setAdminPassword } = useAppContext()
+    const { handleVerifyRoleAndSession } = useSession()
+
 
     const onFinish = async (values) => {
         setIsLoading(true)
@@ -27,20 +28,20 @@ function Login() {
         try {
             const result = await verifyAdminAccount(values.user_email)
             console.log(result)
-            
+
             if (result === 403) {
                 setHiddenMainForm(true)
                 setShowOtpInput(true)
                 return
             }
-            
+
             if (result === 200) {
                 setHiddenMainForm(true)
                 setHiddenPsw(false)
                 setAdminVerified(true)
             }
 
-            
+
         } catch (error) {
             console.log(error)
         } finally {
@@ -52,11 +53,11 @@ function Login() {
         setIsLoading(true)
         try {
             const result = await verifyOtpAdmin(values.otp_result, user_email)
-            
+
             if (result) {
                 setShowOtpInput(false)
                 setHiddenPsw(false)
-                return; 
+                return;
             }
             return console.log("OTP incorrecto");
         } catch (error) {
@@ -66,7 +67,7 @@ function Login() {
         }
     }
 
-    
+
     const onPasswordSubmit = async (values) => {
         setIsLoading(true)
         try {
@@ -75,7 +76,7 @@ function Login() {
             formData.append("user_email", user_email)
 
             const result = adminVerified ? await loginAdmin(formData) : await setAdminPassword(values.user_password, user_email)
-            
+
             if (result) {
                 window.location.href = "/admin-dashboard"
             } else {
@@ -88,15 +89,13 @@ function Login() {
         }
     }
 
-    useEffect(()=> {
-        if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-            return;
-        } else if (loginData[0] && !loginData[0]?.admin) {
-            navigate("/client-info");
-        } else if (loginData[0] && loginData[0]?.admin) {
-            navigate("/admin-dashboard");
+    const alreadyVerified = useRef(false)
+    useEffect(() => {
+        if (!alreadyVerified.current) {
+            alreadyVerified.current = true
+            handleVerifyRoleAndSession()
         }
-    },[loginData])
+    }, [])
 
     return (
         <React.Fragment>
@@ -105,27 +104,27 @@ function Login() {
                     <h1>Iniciar sesión</h1>
                     {
                         !hiddenMainForm && (
-<Form
-                        name="login__form"
-                        onFinish={onFinish}
-                        layout="vertical"
-                        autoComplete="off"
-                        style={{ width: "100%" }}
-                    >
-                        <Form.Item
-                            label="Email"
-                            className="form-item"
-                            name="user_email"
-                            rules={[
-                                { required: true, message: "Por favor ingresa tu email!" },
-                                { type: "email", message: "Por favor ingresa un email válido!" }
-                            ]}
-                        >
-                            <Input placeholder="Introduce tu email" />
-                        </Form.Item>
+                            <Form
+                                name="login__form"
+                                onFinish={onFinish}
+                                layout="vertical"
+                                autoComplete="off"
+                                style={{ width: "100%" }}
+                            >
+                                <Form.Item
+                                    label="Email"
+                                    className="form-item"
+                                    name="user_email"
+                                    rules={[
+                                        { required: true, message: "Por favor ingresa tu email!" },
+                                        { type: "email", message: "Por favor ingresa un email válido!" }
+                                    ]}
+                                >
+                                    <Input placeholder="Introduce tu email" />
+                                </Form.Item>
 
-                        <Button htmlType="submit" type="primary" loading={isLoading}>Iniciar sesión</Button>
-                    </Form>
+                                <Button htmlType="submit" type="primary" loading={isLoading}>Iniciar sesión</Button>
+                            </Form>
                         )
                     }
 
