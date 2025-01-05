@@ -4,16 +4,17 @@ import { useClientFormLogic } from './useClientFormLogic'
 import { WarningOutlined } from '@ant-design/icons'
 import "./ClientInfoForm.css"
 import { useAppContext } from '../../../AppContext'
+import useSession from '../../../Context_Folders/Session/useSession'
 function ClientInfoForm() {
     const [form] = Form.useForm()
-    const { width, saveClientInfo, closeSession, retrieveClientInfo } = useAppContext()
+    const { width, saveClientInfo } = useAppContext()
+    const { closeSession } = useSession()
     const {
         onFinish,
         saving
     } = useClientFormLogic(
         form,
         saveClientInfo,
-        retrieveClientInfo
     )
 
     return (

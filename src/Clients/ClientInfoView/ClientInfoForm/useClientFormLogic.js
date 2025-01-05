@@ -1,3 +1,4 @@
+import { notification } from "antd"
 import { useState } from "react"
 
 export const useClientFormLogic = (form, saveClientInfo) => {
@@ -13,7 +14,17 @@ export const useClientFormLogic = (form, saveClientInfo) => {
         setSaving(false)
         if(result){
             form.resetFields()
-            document.location.reload()
+            notification.success({
+                message: "Tus datos fueron actualizados con exito",
+                description: "Cerraremos tu sesión",
+                duration: 2,
+                pauseOnHover: false,
+                showProgress: true
+            })
+
+            setTimeout(() => {
+                document.location.reload()
+            }, 2500);
         } 
     }
 
