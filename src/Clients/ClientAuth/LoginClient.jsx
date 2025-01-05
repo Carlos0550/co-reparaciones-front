@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Button, Form, Input } from "antd"
 import "./LoginClient.css"
 import { useNavigate } from "react-router-dom"
 import { useAppContext } from "../../AppContext"
-import useClientAuth from "../../Context_Folders/ClientAuth/useClientAuth"
+import useSession from "../../Context_Folders/Session/useSession"
 function LoginClient() {
     const navigate = useNavigate()
-    const { loginClientWithEmail, createNewClient, verifyAuthCodeClients } = useClientAuth()
+    const { loginClientWithEmail, createNewClient, verifyAuthCodeClients, handleVerifyRoleAndSession } = useSession()
     const [isLoading, setIsLoading] = useState(false)
     const [isCreatingAccount, setIsCreatingAccount] = useState(false)
 
     const [hideMainForm, setHiddenMainForm] = useState(false)
     const [currentUserEmail, setCurrentUserEmail] = useState(null)
-
-    const { loginData } = useAppContext()
 
     const onFinish = async (values) => {
         setIsLoading(true)
@@ -36,15 +34,13 @@ function LoginClient() {
         setIsLoading(false)
     }
 
+    const alreadyVerified = useRef(false)
     useEffect(()=> {
-            if (!loginData || (Array.isArray(loginData) && loginData.length === 0)) {
-                return;
-            } else if (loginData[0] && !loginData[0]?.admin) {
-                navigate("/client-info");
-            } else if (loginData[0] && loginData[0]?.admin) {
-                navigate("/admin-dashboard");
+            if(!alreadyVerified.current){
+                alreadyVerified.current = true
+                handleVerifyRoleAndSession()
             }
-        },[loginData])
+        },[])
 
     return (
         <React.Fragment>
