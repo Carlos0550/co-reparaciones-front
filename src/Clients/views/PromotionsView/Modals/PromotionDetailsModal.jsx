@@ -112,7 +112,7 @@ function PromotionDetailsModal({ closeModal, promotion }) {
           
           <div className="promotion-buttons">
             <button className='promotion-btn-details' disabled style={{cursor: "not-allowed", backgroundColor: "gray"}}>Más detalles</button>
-            <button className='promotion-btn-add-cart' onClick={handleAddCart}>Añadir al carrito</button>
+            <button className='promotion-btn-add-cart' onClick={handleAddCart} disabled style={{cursor: "not-allowed", backgroundColor: "gray"}}>Añadir al carrito</button>
           </div>
         </div>
        </div>
