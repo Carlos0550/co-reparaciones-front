@@ -12,7 +12,7 @@ import CartView from '../views/CartView/CartView'
 import useSession from "../../Context_Folders/Session/useSession"
 function ClientInfoView() {
     const navigate = useNavigate()
-    const { loginData, openCart, setOpenCart, getClientOrder, setGettingClientOrder, setClientOrder } = useAppContext()
+    const { loginData, openCart, setOpenCart, getClientOrder, setGettingClientOrder, getPageColors, getProducts, productsList } = useAppContext()
     const [userNotVerified, setUserNotVerified] = useState(false)
 
     const { closeSession, handleVerifyRoleAndSession } = useSession()
@@ -20,23 +20,21 @@ function ClientInfoView() {
     const handleGetClientOrder = async () => {
 
         setGettingClientOrder(true)
-        const result = await getClientOrder(loginData[0]?.client_uuid)
-
-        if(!result){
-            setClientOrder([])
-            setGettingClientOrder(false)
-            return
-        }
+        await getClientOrder(loginData[0]?.client_uuid)
+        
         setGettingClientOrder(false)
-        setClientOrder(result.orders)
     }
 
     const alreadyVerified = useRef(false)
     useEffect(() => {
         if (!alreadyVerified.current) {
-            alreadyVerified.current = true
-            handleVerifyRoleAndSession()
-            handleGetClientOrder()
+            (async () => {
+                alreadyVerified.current = true
+                handleVerifyRoleAndSession()
+                await getPageColors()
+                if(productsList.length === 0) await getProducts()
+                await handleGetClientOrder()
+            })()
         }
     }, [])
 

@@ -719,7 +719,7 @@ export const AppProvider = ({ children }) => {
 
         try {
             const response = await fetch(`${apis.backend}/api/clients/get-client-orders/${clientId}`)
-            console.log(response)
+            
             if(response.status === 404) return;
             const responseData = await processRequests(response)
 
@@ -738,7 +738,7 @@ export const AppProvider = ({ children }) => {
             }
             if(!response.ok) throw new Error(responseData.msg)
 
-            return responseData
+            setClientOrder(responseData?.orders || [])
         } catch (error) {
             console.log(error)
             notification.error({

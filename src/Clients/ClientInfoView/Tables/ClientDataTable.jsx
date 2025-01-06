@@ -9,14 +9,14 @@ function ClientDataTable() {
     const { loginData, getClientOrder, gettingClientOrder, clientOrder, productsList } = useAppContext()
     const parseProducts = (productss) => {
         if(!productss) return []
-        const parsedProducts = JSON.parse(productss)
+        const parsedProducts = JSON.parse(productss) || []
         
         const products = parsedProducts.map(product => {
             const productInfo = productsList.find(prod => prod.id === product.id)
             return {
-                product_name: productInfo.product_name,
-                quantity: product.quantity,
-                price: productInfo.product_price
+                product_name: productInfo?.product_name,
+                quantity: product?.quantity,
+                price: productInfo?.product_price
             }
         })
 
