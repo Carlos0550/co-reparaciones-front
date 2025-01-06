@@ -3,7 +3,6 @@ import { useAppContext } from '../../../AppContext'
 import "./ProductsView.css"
 import { Input, Select } from 'antd'
 import { useNavigate } from 'react-router-dom'
-
 function ProductsView({products}) {
     const { titleColor, contentColor, categories } = useAppContext()
 
@@ -58,6 +57,8 @@ function ProductsView({products}) {
                     </div>
                 ))}
             </div>
+
+            
         </React.Fragment>
     )
 }

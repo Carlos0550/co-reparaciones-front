@@ -76,8 +76,37 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
-@media(max-width: 560px){
-    .products-filters{
-        flex-direction: column;
-    }
+
+@media (max-width: 768px) {
+  .product-card {
+    flex: 0 1 calc(50% - 1rem); 
+    max-width: calc(50% - 1rem);
+    height: auto; 
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+    background-color: #fff;
+    margin: 10px 0; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+
+  .products-filters{
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-card-title{
+    font-size: .8rem;
+  }
+
+  .product-card{
+    min-height: 250px;
+  }
+
+  .product-price{
+    font-size: .8rem;
+  }
 }
