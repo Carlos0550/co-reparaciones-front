@@ -40,7 +40,8 @@ function CartView() {
     const [showAdvertisment, setShowAdvertisement] = useState(false)
 
     useEffect(()=>{
-        if(loginData.length === 0) setShowAdvertisement(true)
+        console.log(loginData)
+        if(loginData && Object.keys(loginData).length === 0) setShowAdvertisement(true)
     },[loginData])
 
     const handleWhatsAppRedirect = () => {
@@ -93,7 +94,7 @@ function CartView() {
                         {parseFloat(totalCart).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
                     </p>
                     {!showWhatsapp ? <Button type="primary" className='finalize-purchase-button' disabled={cart.length === 0} loading={processigPayment} onClick={async()=>{
-                        if(loginData[0]?.admin) return notification.warning({
+                        if(loginData?.admin) return notification.warning({
                             message: "No puedes realizar compras como administrador",
                             description: "Por favor, inicia sesión como cliente para poder realizar compras"
                         })                        
