@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './PromotionsView.css';
 import { useAppContext } from '../../../AppContext';
-import PromotionDetailsModal from './PromotionDetailsModal';
+import PromotionDetailsModal from './Modals/PromotionDetailsModal';
 import { v4 } from 'uuid';
 
 function PromotionsView() {
-    const { promotions, productsList, width } = useAppContext();
+    const { promotions, productsList } = useAppContext();
     const titles = [
         "¡Encuentra el precio perfecto aquí!",
         "Promociones que te harán sonreír",
@@ -81,8 +81,6 @@ function PromotionsView() {
             if (container) {
                 const containerWidth = container.offsetWidth;
                 const contentWidth = container.scrollWidth;
-    
-                // Desactiva el carrusel si el contenido es menor o igual al ancho del contenedor
                 return contentWidth > containerWidth;
             }
             return false;

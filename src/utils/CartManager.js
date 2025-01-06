@@ -24,14 +24,28 @@ function useCart() {
                 message.success(`Se actualizó la cantidad de ${existentProduct.quantity} ${productName}(s) en el carrito`);
             } else {
                 cart.push(
-                    { id: productID, quantity: productQuantity, product_name: productName, product_price: price  }
+                    { 
+                        id: productID, 
+                        quantity: productQuantity, 
+                        product_name: productName, 
+                        product_price: price,
+                        item_type: "product"
+                    }
                 );
                 localStorage.setItem("current_cart", JSON.stringify(cart));
                 message.success(`Se agregó ${productQuantity} ${productName}(s) al carrito`);
             }
             getCartItems()
         } else {
-            const newCart = [{ id: productID, quantity: productQuantity, product_name: productName, product_price: price   }];
+            const newCart = [
+                { 
+                    id: productID, 
+                    quantity: productQuantity, 
+                    product_name: productName, 
+                    product_price: price,
+                    item_type: "product"   
+                }
+            ];
             localStorage.setItem("current_cart", JSON.stringify(newCart));
             message.success(`Se agregó un nuevo producto al carrito: ${productName}`);
             getCartItems()
