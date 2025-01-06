@@ -15,26 +15,27 @@ import PromotionsView from "../views/PromotionsView/PromotionsView.jsx"
 import EmptyImage from "../../../public/emptyImage.webp"
 import NotFound from "../../NotFound/NotFound.jsx"
 
+import WhatsappSVG from "../../../public/whatsapp-color-svgrepo-com.svg"
 
 function ClientLayout() {
-    const { 
+    const {
         footerColor,
         contentColor,
         initPage,
         banners,
         productsList,
         setOpenCart,
-        openCart, 
-        promotions   
+        openCart,
+        promotions
     } = useAppContext()
 
     const alreadyInit = useRef(false)
-    useEffect(()=>{
-        if(!alreadyInit.current){
+    useEffect(() => {
+        if (!alreadyInit.current) {
             alreadyInit.current = true
             initPage()
         }
-    },[])
+    }, [])
 
     const [currentPage, setCurrentPage] = useState(1)
     const [productsPerPage] = useState(10);
@@ -49,48 +50,59 @@ function ClientLayout() {
             window.scrollTo({
                 top: 50,
                 behavior: 'smooth',
-                
+
             })
         }, 100);
     }
 
+    const handleRedirectWhatsapp = () => {
+        const message = `
+            Hola 👋, estoy interesado en sus productos. Los encontré a través de su página web y me gustaría más información sobre:
+            [Describe aquí el producto especifico o consulta específica].
+            Espero su respuesta, ¡gracias! 😊
+        `;
+        const whatsappNumber = "3764100978"
+        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    }
+
     return (
         <React.Fragment>
-            <ClientHeader/>
+            <ClientHeader />
             <Routes>
                 <Route path="/" element={
                     <div className="main-client-container" style={{ backgroundColor: contentColor || "#ffffff" }}>
-                    
-                    
-                    {productsList && productsList.length > 0
-                        ? (
-                            <>
-                                {banners && banners.length > 0 && <BannersView />}
-                                {promotions && promotions.length > 0 && <PromotionsView/>}
-                                <ProductsView products={currentProducts} />
-                                <Pagination 
-                                    current={currentPage}
-                                    pageSize={productsPerPage}
-                                    total={productsList.length}
-                                    onChange={paginate}
-                                    className="pagination_component"
-                                />
-                            </>
-                        )
-                        : <div className="empty-container">
-                            <picture className="empty-image">
-                                <img src={EmptyImage} alt="" />
-                            </picture>
-                            <div className="empty-info">
-                                <h2 className="empty-title">No hay productos disponibles</h2>
-                                <p className="empty-subtitle">Pero no te preocupes, puedes volver más adelante</p>
+
+
+                        {productsList && productsList.length > 0
+                            ? (
+                                <>
+                                    {banners && banners.length > 0 && <BannersView />}
+                                    {promotions && promotions.length > 0 && <PromotionsView />}
+                                    <ProductsView products={currentProducts} />
+                                    <Pagination
+                                        current={currentPage}
+                                        pageSize={productsPerPage}
+                                        total={productsList.length}
+                                        onChange={paginate}
+                                        className="pagination_component"
+                                    />
+                                </>
+                            )
+                            : <div className="empty-container">
+                                <picture className="empty-image">
+                                    <img src={EmptyImage} alt="" />
+                                </picture>
+                                <div className="empty-info">
+                                    <h2 className="empty-title">No hay productos disponibles</h2>
+                                    <p className="empty-subtitle">Pero no te preocupes, puedes volver más adelante</p>
+                                </div>
                             </div>
-                        </div>
-                    }
-                </div>
-                }/>
-            <Route path="/product-details/:product_id" element={<ProductDetailsView/>}/>
-            <Route path="*" element={<NotFound/>}/>  
+                        }
+                    </div>
+                } />
+                <Route path="/product-details/:product_id" element={<ProductDetailsView />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
             <footer style={{ backgroundColor: footerColor || "#ffffff" }}>
                 <div className="footer-content">
@@ -115,12 +127,14 @@ function ClientLayout() {
                     </div>
                 </div>
             </footer>
-            
-            {
-                openCart && <Drawer onClose={() => setOpenCart(false)} open={openCart} children={<CartView />}/>
-            }
 
-            
+            {
+                openCart && <Drawer onClose={() => setOpenCart(false)} open={openCart} children={<CartView />} />
+            }
+            <div className='whatsapp-button' onClick={handleRedirectWhatsapp}>
+                <img src={WhatsappSVG} className='whatsapp-icon' />
+            </div>
+
         </React.Fragment>
     )
 }
