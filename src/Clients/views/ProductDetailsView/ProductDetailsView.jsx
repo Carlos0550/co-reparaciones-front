@@ -37,10 +37,7 @@ function ProductDetailsView() {
     const [selectedQuantity, setSelectedQuantity] = useState(1)
 
     const handleRedirectWhatsapp = (productName) => {
-        const message = `
-            Hola 👋, estoy interesado en ${productName}. Lo encontré a través de su página web y me gustaría comprarlo por aqui
-            Espero su respuesta, ¡gracias! 😊
-        `;
+        const message = `Hola 👋, estoy interesado en sus productos de su página web y me gustaría más información sobre: ${productName}.`;
         const whatsappNumber = "3764100978"
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
