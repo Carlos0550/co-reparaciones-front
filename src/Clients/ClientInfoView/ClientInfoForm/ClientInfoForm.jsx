@@ -15,6 +15,7 @@ function ClientInfoForm() {
     } = useClientFormLogic(
         form,
         saveClientInfo,
+        closeSession
     )
 
     return (

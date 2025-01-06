@@ -1,7 +1,7 @@
 import { notification } from "antd"
 import { useState } from "react"
 
-export const useClientFormLogic = (form, saveClientInfo) => {
+export const useClientFormLogic = (form, saveClientInfo, closeSession) => {
     const [saving, setSaving] = useState(false)
     const onFinish = async(values) => {
         setSaving(true)
@@ -23,7 +23,7 @@ export const useClientFormLogic = (form, saveClientInfo) => {
             })
 
             setTimeout(() => {
-                document.location.reload()
+                closeSession()
             }, 2500);
         } 
     }
