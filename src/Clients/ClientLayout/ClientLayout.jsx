@@ -56,11 +56,7 @@ function ClientLayout() {
     }
 
     const handleRedirectWhatsapp = () => {
-        const message = `
-            Hola 👋, estoy interesado en sus productos. Los encontré a través de su página web y me gustaría más información sobre:
-            [Describe aquí el producto especifico o consulta específica].
-            Espero su respuesta, ¡gracias! 😊
-        `;
+        const message = `Hola 👋, estoy interesado en sus productos de su página web y me gustaría más información sobre: [Descripcion del producto especifico].`;
         const whatsappNumber = "3764100978"
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
