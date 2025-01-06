@@ -68,20 +68,20 @@
 .promotion-info .promotion-name {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #264653; /* Verde oscuro */
+    color: #264653; 
     margin-bottom: 10px;
 }
 
 .promotion-info .promotion-price {
     font-size: 1.1rem;
-    color: #2a9d8f; /* Verde claro */
+    color: #2a9d8f; 
     font-weight: bold;
     margin-bottom: 10px;
 }
 
 .promotion-info .promotion-price-old {
     font-size: 1rem;
-    color: #e76f51; /* Rojo para precio tachado */
+    color: #e76f51; 
     text-decoration: line-through;
     margin-right: 8px;
 }
@@ -89,11 +89,10 @@
 .promotion-info .promotion-discount {
     font-size: 1.1rem;
     font-weight: bold;
-    color: #e76f51; /* Rojo para el descuento */
+    color: #e76f51; 
     padding-left: 8px;
 }
 
-/* Flexbox layout para el precio con descuento */
 .promotion-info .discount-container {
     display: flex;
     align-items: center;
@@ -101,24 +100,63 @@
     margin-top: 8px;
 }
 
-
 @media (max-width: 1024px) {
     .promotion-card {
         max-width: 280px; 
         height: 350px;
     }
+
+    .promotion-info .promotion-name {
+        font-size: 1rem;
+    }
+
+    .promotion-info .promotion-price {
+        font-size: 0.9rem;
+    }
+
+    .promotion-info .promotion-discount {
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 768px) {
     .promotion-card {
-        max-width: 250px;
-        height: 300px;
+        max-width: 240px;
+        height: 320px;
+    }
+
+    .promotions-title {
+        font-size: 1.2rem;
+    }
+
+    .promotion-info .promotion-name {
+        font-size: 0.9rem;
+    }
+
+    .promotion-info .promotion-price {
+        font-size: 0.85rem;
     }
 }
 
 @media (max-width: 480px) {
     .promotion-card {
         max-width: 200px;
-        height: 250px;
+        height: 280px;
+    }
+
+    .promotion-info .promotion-name {
+        font-size: 0.8rem;
+    }
+
+    .promotion-info .promotion-price {
+        font-size: 0.75rem;
+    }
+
+    .promotion-info .promotion-discount {
+        font-size: 0.75rem;
+    }
+
+    .promotion-info p {
+        font-size: 0.8rem;
     }
 }

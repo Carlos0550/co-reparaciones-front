@@ -52,9 +52,10 @@ function PromotionsView() {
     };
 
     const activePromotions = promotions.filter(prom => prom.promotion_state === true);
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const container = promotionsRef.current;
+    const [pauseCarrousel, setPauseCarrousel] = useState(false);
+
+    function activateCarrousel() {
+        const container = promotionsRef.current;
             if (container) {
                 const containerWidth = container.offsetWidth;
                 const scrollLeft = container.scrollLeft;
@@ -72,16 +73,37 @@ function PromotionsView() {
                     });
                 }
             }
-        }, 3000);
+    }
 
+    useEffect(() => {
+        const container = promotionsRef.current;
+        const shouldCarouselRun = () => {
+            if (container) {
+                const containerWidth = container.offsetWidth;
+                const contentWidth = container.scrollWidth;
+    
+                // Desactiva el carrusel si el contenido es menor o igual al ancho del contenedor
+                return contentWidth > containerWidth;
+            }
+            return false;
+        };
+    
+        const interval = setInterval(() => {
+            if (!pauseCarrousel && shouldCarouselRun()) {
+                activateCarrousel();
+            }
+        }, 3000);
+    
         return () => clearInterval(interval);
-    }, []);
+    }, [pauseCarrousel, promotions]);
+    
+    
 
 
     return (
         <React.Fragment>
             <h1 className="promotions-title">{randomTitles}</h1>
-            <div className="promotions-container" ref={promotionsRef}>
+            <div className="promotions-container" ref={promotionsRef} onMouseEnter={() => setPauseCarrousel(true)} onMouseLeave={() => setPauseCarrousel(false)}>
                 {activePromotions.map((promotion) => (
                     <div key={`${promotion.promotion_id}-${v4()}`} className="promotion-card" onClick={() => showModal(promotion)}>
                         <picture className="promotion-image">
