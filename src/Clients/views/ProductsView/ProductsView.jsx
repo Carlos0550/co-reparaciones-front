@@ -25,15 +25,35 @@ function ProductsView({products}) {
             <div className='products-filters' style={{ backgroundColor: contentColor || "#f0f0f0" }}>
                 <Input.Search 
                     placeholder='Buscar un producto'
-                    style={{ minWidth: "200px", maxWidth: "400px", width: "100%" }}
+                    style={
+                        { 
+                        minWidth: "200px", 
+                        maxWidth: "400px", 
+                        width: "100%",
+                        border: "1px solid black",
+                            borderRadius: "6px",
+                            color: "black"
+                    }
+
+                    }
                     allowClear
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)} // Actualiza el estado de búsqueda
                 />
                 <Select
-                    style={{ minWidth: "200px", maxWidth: "400px", width: "100%" }}
+                    style={
+                        { 
+                            minWidth: "200px", 
+                            maxWidth: "400px", 
+                            width: "100%",
+                            border: "1px solid black",
+                            borderRadius: "6px",
+                            color: "black"
+                        }
+                    }
+                    className='custom-select'
                     placeholder="Filtrar por categoría"
-                    allowClear
+                    allowClear                 
                     value={categoryId}
                     onChange={(categoryId) => setCategoryId(categoryId)} // Actualiza el estado de la categoría
                 >
