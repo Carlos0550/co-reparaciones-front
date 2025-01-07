@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Button, Form, Input } from "antd"
+import { Button, Form, Input, notification } from "antd"
 import "./Login.css"
 
 import { useAppContext } from "../../../AppContext"
@@ -20,7 +20,7 @@ function Login() {
 
     const { setAdminPassword } = useAppContext()
     const { handleVerifyRoleAndSession } = useSession()
-
+    const { closeSession } = useSession()
 
     const onFinish = async (values) => {
         setIsLoading(true)
@@ -78,7 +78,21 @@ function Login() {
             const result = adminVerified ? await loginAdmin(formData) : await setAdminPassword(values.user_password, user_email)
 
             if (result) {
-                window.location.href = "/admin-dashboard"
+                if(adminVerified){
+                    window.location.href = "/admin-dashboard"
+                }else{
+                    notification.success({
+                        message: "Contraseña cambiada",
+                        description: "La contraseña ha sido cambiada con exito, cerraremos la sesión actual",
+                        duration: 3,
+                        pauseOnHover: false,
+                        showProgress: true
+                    })
+
+                    setTimeout(() => {
+                        closeSession()
+                    }, 2500);
+                }
             } else {
                 console.log("No se pudo guardar la contraseña")
             }

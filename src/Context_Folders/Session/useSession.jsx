@@ -69,9 +69,9 @@ const useSession = () => {
         window.location.href = "/"
     }
 
-    const loginClientWithEmail = async (client_email) => {
+    const loginClientWithEmail = async (client_email, userPassword) => {
         try {
-            const response = await fetch(`${apis.backend}/api/clients/login-client/${client_email}`, {
+            const response = await fetch(`${apis.backend}/api/clients/login-client?email=${client_email}&password=${userPassword}`, {
                 method: "PUT"
             })
             if (response.status === 404) {
@@ -83,6 +83,11 @@ const useSession = () => {
             }
             const responseData = await processRequests(response)
 
+            const sessionData = {
+                user_id : responseData.user.id,
+                user_type: "client",
+            }
+            localStorage.setItem("session_data", JSON.stringify(sessionData))
             if (!response.ok) throw new Error(responseData.msg)
             message.success(`${responseData.msg}`)
             return true
@@ -99,9 +104,9 @@ const useSession = () => {
         }
     }
 
-    const createNewClient = async (clientEmail) => {
+    const createNewClient = async (clientEmail, password) => {
         try {
-            const response = await fetch(`${apis.backend}/api/clients/new-client/${clientEmail}`, {
+            const response = await fetch(`${apis.backend}/api/clients/new-client?userEmail=${clientEmail}&user_password=${password}`, {
                 method: "POST"
             })
             const responseData = await processRequests(response)

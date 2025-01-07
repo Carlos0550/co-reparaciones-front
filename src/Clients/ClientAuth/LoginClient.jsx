@@ -15,11 +15,16 @@ function LoginClient() {
 
     const onFinish = async (values) => {
         setIsLoading(true)
-        const result = isCreatingAccount ? await createNewClient(values.user_email) : await loginClientWithEmail(values.user_email)
+        const result = isCreatingAccount ? await createNewClient(values.user_email, values.user_password) : await loginClientWithEmail(values.user_email, values.user_password)
         setIsLoading(false)
         if (result) {
             setCurrentUserEmail(values.user_email)
-            setHiddenMainForm(true)
+            if(!isCreatingAccount){
+                
+                location.href = "/client-info"
+            }else{
+                setHiddenMainForm(true)
+            }
             setIsLoading(false)
         }
     }
@@ -67,8 +72,22 @@ function LoginClient() {
                         >
                             <Input placeholder="jhon@gmail.com" />
                         </Form.Item>
+
+                        <Form.Item
+                            name={"user_password"}
+                            label="Contraseña"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Por favor ingrese su contraseña",
+                                }
+                            ]}
+                        >
+                            <Input placeholder="Ingresa una contraseña segura"/>
+                        </Form.Item>
+
                         <Form.Item>
-                            <Button htmlType="submit" type="primary" loading={isLoading}>Iniciar sesión</Button>
+                            <Button htmlType="submit" type="primary" loading={isLoading}>{isCreatingAccount ? "Crear cuenta" : "Iniciar sesión"}</Button>
                         </Form.Item>
                         <div className="form-buttons">
                             <Button onClick={() => navigate("/login-admin")}>Soy administrador</Button>

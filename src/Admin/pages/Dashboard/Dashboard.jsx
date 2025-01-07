@@ -52,7 +52,7 @@ function Dashboard() {
         }
     }, [])
 
-
+    console.log(loginData)
 const { 
   orderCols, 
   openModal,
