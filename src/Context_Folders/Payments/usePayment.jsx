@@ -3,13 +3,15 @@ import { apis } from "../../utils/apis";
 import { useState } from "react";
 
 import { useAppContext } from "../../AppContext";
-import { processRequests } from "../../utils/processRequests";
 import useCart from "../../utils/CartManager";
+import { useNavigate } from "react-router-dom";
 
 function usePayment() {
-    const { setOpenCart, loginData } = useAppContext()
+    const { loginData, getProducts } = useAppContext()
     const { setCart } = useCart()
     const [showWhatsapp, setShowWhatsapp] = useState(false)
+    
+    const navigate = useNavigate()
     // const purchaseProduct = async() => {
     //     await retrieveClientInfo(true)
     //     const clientData = localStorage.getItem("client_info");
@@ -91,9 +93,8 @@ function usePayment() {
             console.error("Error al enviar la confirmación de compra:", error);
     
             notification.error({
-                message: "No pudimos enviarte tu comprobante de compra",
-                description:
-                    "Pero no te preocupes, tu compra fue procesada correctamente y nos pondremos en contacto cuanto antes.",
+                message: "No procesar tu compra.",
+                description: "No pudimos procesar tu compra. Por favor, inténtalo de nuevo más tarde.",
                 duration: 6,
                 pauseOnHover: false,
             });
@@ -102,12 +103,15 @@ function usePayment() {
     };
     
     
-    const substractStockInDb = async(products) => {
-        if(!products) return;
+    const substractStockInDb = async() => {
+        const products = localStorage.getItem("current_cart")
+        if(!products) return
+        const parsedProducts = JSON.parse(products)
+        
         try {
             const formData = new FormData()
 
-            const processedProducts = products.map(prod => {
+            const processedProducts = parsedProducts.map(prod => {
                 return {
                     id: prod.id,
                     quantity: prod.quantity
@@ -141,7 +145,8 @@ function usePayment() {
     
         const formData = new FormData();
         formData.append("cart_items", currentCart);
-        formData.append("client_info", JSON.stringify(loginData));
+        
+        if(loginData[0]?.is_verified) formData.append("client_info", JSON.stringify(loginData));
     
         try {
             const response = await fetch(`${apis.backend}/api/receipts/generate-receipt`, {
@@ -205,15 +210,21 @@ function usePayment() {
     const [processigPayment, setProcessigPayment] = useState(false)
     const handlePayment = async() => {
         setProcessigPayment(true)
-        const result1 = await sendPurchaseConfirmation()
+        let result3;
+
+        if(loginData[0]?.is_verified) await sendPurchaseConfirmation()
+
         await substractStockInDb()
-        const result3 = await generatePdfReceipt()
+        result3 = await generatePdfReceipt()
+
         localStorage.removeItem("current_cart");
 
         setCart([])
         setProcessigPayment(false)
+        getProducts()
+        navigate("/")
 
-        if(result1 && result3){
+        if(result3){
             return true
         }else{
             return false

@@ -177,6 +177,7 @@ function ClientDataTable() {
         width: "min-content"
     }}
     onClick={()=> getClientOrder(loginData[0]?.client_uuid)}
+    disabled={!loginData[0]?.is_verified}
     loading={gettingClientOrder}
     >Obtener ordenes</Button>
 

@@ -49,7 +49,6 @@ const useSession = () => {
                 const { admin_psw, auth_code, authorized_session, is_verified, ...otherValues } = responseMsg.user;
                 
                 const { admin } = responseMsg.user;
-                console.log(responseMsg.user)
                 otherValues.admin = admin;
                 setLoginData(otherValues);
             } else {
@@ -235,8 +234,6 @@ const useSession = () => {
             return 
         }
 
-        console.log("Session: ", session_data)
-        console.log("Ruta: ", route)
 
         if(parsedSessionData?.user_type === "admin" && !route.includes("/admin-")){
             message.error("No tienes permiso para acceder a esta sección")

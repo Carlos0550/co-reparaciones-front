@@ -3,12 +3,12 @@ import "./CartView.css"
 import { useAppContext } from '../../../AppContext'
 import { Button, notification, Space } from 'antd'
 import { CreditCardOutlined, DeleteOutlined, MinusCircleOutlined, PlusOutlined, WhatsAppOutlined } from '@ant-design/icons'
-import AdvertismentAccountModal from '../AdvertismentAccountModal/AdvertismentAccountModal'
 import usePayment from '../../../Context_Folders/Payments/usePayment'
 import useCart from "../../../utils/CartManager"
+import { useNavigate } from 'react-router-dom'
 
 function CartView() {
-    const { subtitleColor, productsList, loginData } = useAppContext()
+    const { subtitleColor, productsList, loginData,  } = useAppContext()
     const [totalCart, setTotalCart] = useState(0)
     
     const { updateQuantityCart, getCartItems, cart, setCart } = useCart()
@@ -37,13 +37,6 @@ function CartView() {
         setTotalCart(sumTotal)
     }
 
-    const [showAdvertisment, setShowAdvertisement] = useState(false)
-
-    useEffect(()=>{
-        console.log(loginData)
-        if(loginData && Object.keys(loginData).length === 0) setShowAdvertisement(true)
-    },[loginData])
-
     const handleWhatsAppRedirect = () => {
         const whatsappNumber = '+5403764100978'; 
         const message = `Hola Cristian, recientemente te hice una compra, te comparto el recibo de compra.`;
@@ -51,6 +44,7 @@ function CartView() {
         window.open(url, '_blank'); 
         setShowWhatsapp(false)
       };
+
     return (
         <div className='cart-view-container'>
             <h1 style={{ color: subtitleColor || "#f0f0f0" }} className='cart-view-title'>Retoma desde donde lo dejaste</h1>
@@ -112,7 +106,6 @@ function CartView() {
                 
             </div>
 
-            {showAdvertisment && <AdvertismentAccountModal closeModal={()=>setShowAdvertisement(false)}/>}
         </div>
     )
 }

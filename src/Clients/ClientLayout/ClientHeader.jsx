@@ -35,7 +35,6 @@ function ClientHeader() {
     ]
 
     function handleRedirect() {
-        console.log(loginData)
         if(loginData?.user_type === "client")navigate("/client-info")
         if(loginData?.user_type === "admin")navigate("/admin-dashboard")
         else navigate("/login-client")

@@ -38,7 +38,7 @@ function ProductsView({products}) {
                     }
                     allowClear
                     value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)} // Actualiza el estado de búsqueda
+                    onChange={(e) => setSearchText(e.target.value)} 
                 />
                 <Select
                     style={
@@ -55,7 +55,7 @@ function ProductsView({products}) {
                     placeholder="Filtrar por categoría"
                     allowClear                 
                     value={categoryId}
-                    onChange={(categoryId) => setCategoryId(categoryId)} // Actualiza el estado de la categoría
+                    onChange={(categoryId) => setCategoryId(categoryId)} 
                 >
                     {categories && categories.map((category) => (
                         <Select.Option value={category.id} key={category.id}>{category.category_name}</Select.Option>

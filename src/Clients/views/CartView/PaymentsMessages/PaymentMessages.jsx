@@ -22,7 +22,7 @@ function PaymentMessages() {
   useEffect(() => {
     const getResultStatus = () => {
       if (location.pathname.includes('success')) {
-        handleSendPurchaseConfirmation()
+        //handleSendPurchaseConfirmation()
         return {
           status: 'success',
           title: '¡Pago Exitoso!',
