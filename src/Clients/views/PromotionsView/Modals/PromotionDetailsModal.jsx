@@ -1,6 +1,6 @@
-import { Modal, Button } from 'antd'
+import { Modal, Button, message } from 'antd'
 import React from 'react'
-import { ShoppingCartOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import "./PromotionDetailsModal.css"
 import dayjs from 'dayjs'
 import { useAppContext } from '../../../../AppContext'
@@ -17,21 +17,30 @@ function PromotionDetailsModal({ closeModal, promotion }) {
     }
   }
 
-  const handleCalculatePromotionPrice = (promotionType) => {
+  const handleCalculatePromotionPrice = () => {
+    const promotionType = promotion.promotion_type;
     if(promotionType === "single"){
       
-      const productPrice = productsList.find((product) => product.id === promotionItems[0].id)?.product_price;
-      const promotionDiscount = parseFloat(productPrice) * (parseFloat(promotion.pomotion_discount) / 100);
-      console.log("Tipo de promoción simple, total: ", promotionDiscount)
-      return promotionDiscount.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
+      const productPrice = productsList.find((product) => product.id === promotion.promotion_data.product_id)?.product_price;
+      const promotionDiscount = productPrice * (parseInt(promotion.promotion_discount) / 100);
+
+      const finalPrice = productPrice - promotionDiscount
+      return parseFloat(finalPrice)
     }else{
-      const promotionItems = promotion.promotion_data.promotion_products_array
-      const promotionDiscount = parseFloat(promotion.promotion_discount)
+      const promotionItems = promotion.promotion_data.promotion_products_array;
+      const promotionDiscount = parseFloat(promotion.promotion_discount);
+
       const total = promotionItems.reduce((acc, item) => {
         const price = parseFloat(item.price) * parseInt(item.quantity);
-        return acc += price
-      },0)
-      return total * (promotionDiscount / 100).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
+        return acc += price;
+      }, 0);
+
+      const discountAmount = total * (promotionDiscount / 100);
+
+      const finalPrice = total - discountAmount;
+
+      return parseFloat(finalPrice)
+
     }
   }
 
@@ -42,7 +51,7 @@ function PromotionDetailsModal({ closeModal, promotion }) {
       const promotionItem = {
         id: promotion.promotion_id,
         name: promotion.promotion_name,
-        price: handleCalculatePromotionPrice(promotion.promotion_type),
+        price: handleCalculatePromotionPrice(),
         image: promotion.images[0].image,
         quantity: 1,
         item_type: "promotion"
@@ -50,7 +59,21 @@ function PromotionDetailsModal({ closeModal, promotion }) {
 
       const updatedCart = [...cartItems, promotionItem];
       localStorage.setItem("current_cart", JSON.stringify(updatedCart));
-      console.log("Carrito actualizado:", updatedCart)
+      console.log("Carrito actualizado: ", updatedCart)
+      message.success("Promoción agregada al carrito");
+    }else{
+      const promotionItem = {
+        id: promotion.promotion_id,
+        name: promotion.promotion_name,
+        price: handleCalculatePromotionPrice(),
+        image: promotion.images[0].image,
+        quantity: 1,
+        item_type: "promotion"
+      }
+      const updatedCart = [promotionItem];
+      localStorage.setItem("current_cart", JSON.stringify(updatedCart));
+      console.log("Carrito actualizado: ", updatedCart)
+      message.success("Promoción agregada al carrito");
     }
   }
   const textMinifier = (html, limit = 420) => {
@@ -80,9 +103,24 @@ function PromotionDetailsModal({ closeModal, promotion }) {
     };
 
     truncateNode(doc.body);
-    console.log(doc.body.innerHTML)
     return doc.body.innerHTML;
   };
+
+  const handleGetPromotionPrices = () => {
+    const promotionType = promotion.promotion_type;
+    if(promotionType === "single"){
+      const productPrice = productsList.find((product) => product.id === promotion.promotion_data.product_id)?.product_price;
+      return parseFloat(productPrice)
+    }else{
+      const promotionItems = promotion.promotion_data.promotion_products_array;
+      const total = promotionItems.reduce((acc, item) => {
+        const price = parseFloat(item.price) * parseInt(item.quantity);
+        return acc + price;
+      }, 0);
+      return parseFloat(total)
+    }
+  }
+
   return (
     <Modal
       open={true}
@@ -103,16 +141,53 @@ function PromotionDetailsModal({ closeModal, promotion }) {
             ({dayjs(promotion.promotion_ends).diff(dayjs(), 'days')} días restantes)
           </p>
 
+          <div className='promotion-prices'>
+            <p className='promotion-old-price'>{handleGetPromotionPrices().toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</p>
+            <p className='promotion-new-price'>{handleCalculatePromotionPrice().toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</p>
+            <p className='promotion-discount-modal'>-{promotion.promotion_discount}% off</p>
+          </div>
 
           <div 
             dangerouslySetInnerHTML={{__html: textMinifier(promotion.promotion_data.promotion_description)
             }}
             className='promotion-description'
+            style={{
+              minHeight: promotion.promotion_type === "multiple" ? "auto" : "calc(100vh - 850px)"
+            }}
           />
+
+          {promotion.promotion_type === "multiple" ? (
+            <div className='promotion-items'>
+              <h3>Productos en la promoción</h3>
+              {promotion.promotion_data.promotion_products_array.map((item, index) => (
+                  <div key={index}>
+                    <p className='promotion-item-name'>{item.quantity} {item.name} {parseFloat(item.price).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</p>
+                  </div>
+              ))}
+            </div>
+          )
+          : (
+            <div className='promotion-items'>
+              <h3>Producto de la promoción</h3>
+              <p className='promotion-item-name'>x1 {" "}
+                {
+                  productsList.find((product) => product.id === promotion.promotion_data.product_id)?.product_name || ''
+                }
+              </p>
+            </div>
+          )
+        }
           
           <div className="promotion-buttons">
-            <button className='promotion-btn-details' disabled style={{cursor: "not-allowed", backgroundColor: "gray"}}>Más detalles</button>
-            <button className='promotion-btn-add-cart' onClick={handleAddCart} disabled style={{cursor: "not-allowed", backgroundColor: "gray"}}>Añadir al carrito</button>
+            <button className='promotion-btn-details' 
+            >
+              <InfoCircleOutlined/> Más detalles
+              </button>
+
+              <button className='promotion-btn-add-cart' 
+              onClick={()=> handleAddCart()} >
+              <ShoppingCartOutlined/> Añadir al carrito
+              </button>
           </div>
         </div>
        </div>

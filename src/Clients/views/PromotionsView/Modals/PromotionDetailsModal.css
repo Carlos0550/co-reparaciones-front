@@ -36,7 +36,7 @@
 
 .promotion-description{
     margin: 1rem;
-    min-height: calc(100vh - 550px);
+    
 }
 
 .promotion-buttons{
@@ -79,4 +79,48 @@
     text-align: center;
     font-weight: bold;
     font-size: 1.2rem;
+}
+
+.promotion-prices{
+    display: flex;
+    gap: 1rem;
+    margin: .5rem 1rem;
+}
+
+.promotion-old-price{
+    color: #404040f0;
+    text-decoration: line-through;
+} 
+
+.promotion-new-price{
+    color: #d70000;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.promotion-discount-modal{
+    color: #d70000;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.promotion-items{
+    background-color: #101010;
+    margin: 1rem;
+    padding: .5rem;
+    border-radius: 1rem;
+    
+}
+
+.promotion-items h3{
+    text-align: center;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.promotion-item-name{
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
 }
