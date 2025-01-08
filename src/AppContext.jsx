@@ -784,7 +784,32 @@ export const AppProvider = ({ children }) => {
         }
     },[])
 
-
+    const alreadyCharged = useRef(false)
+    useEffect(() => {
+        if(location.includes("/admin-") && (loginData && loginData.user_type === "admin" &&Object.keys(loginData).length > 0) && !alreadyCharged.current){
+            console.log("Cargando sistema");
+            alreadyCharged.current = true;
+    
+            (async () => {
+                const hiddenMessage = message.loading("Trayendo datos...", 0);
+                try {
+                    await Promise.all([
+                        getAllBanners(),
+                        getAllPromotions(),
+                        getCategories(),
+                        getProducts(),
+                        getPageColors()
+                    ]);
+                    message.success("Sistema listo!");
+                } catch (error) {
+                    message.error("No se pudo recuperar algunos datos.")
+                    console.error("Error fetching data", error);
+                } finally {
+                    hiddenMessage();
+                }
+            })();
+        }
+    },[location, loginData])
 
     return (
         <AppContext.Provider
