@@ -29,13 +29,29 @@ function CartView() {
     }
 
     const getSumTotal = () => {
-        const realCart = productsList.filter(prod => cart.some(item => item.id === prod.id))
-        const sumTotal = realCart.reduce((acc, item) => {
+        const realCartProducts = productsList.filter(prod => 
+            cart.some(item => item.id === prod.id && item.item_type === "product")
+        );
+        
+        const realCartPromotions = cart.filter(item => 
+            item.item_type === "promotion"
+        );
+        
+        const productsTotal = realCartProducts.reduce((acc, item) => {
             const quantity = cart.find(cartItem => cartItem.id === item.id).quantity;
             return acc + (parseFloat(item.product_price) * parseInt(quantity));
         }, 0);
-        setTotalCart(sumTotal)
-    }
+    
+        const promotionsTotal = realCartPromotions.reduce((acc, item) => {
+            const quantity = item.quantity;
+            return acc + (parseFloat(item.price) * parseInt(quantity)); 
+        }, 0);
+    
+        const sumTotal = productsTotal + promotionsTotal;
+    
+        setTotalCart(sumTotal);
+    };
+    
 
     const handleWhatsAppRedirect = () => {
         const whatsappNumber = '+5403764100978'; 
@@ -45,6 +61,10 @@ function CartView() {
         setShowWhatsapp(false)
       };
 
+      const substractWords = (words, limit = 20) => {
+        if (!words) return '';
+        return words.length > limit ? words.slice(0, limit) + '..' : words;
+    };
     return (
         <div className='cart-view-container'>
             <h1 style={{ color: subtitleColor || "#f0f0f0" }} className='cart-view-title'>Retoma desde donde lo dejaste</h1>
@@ -53,11 +73,12 @@ function CartView() {
                 {cart.map((product) => (
                     <div key={product.id} className='cart-item'>
                         <div className='cart-item-image'>
-                            <img src={productsList.find(item => item.id === product.id)?.images[0]?.image_data} alt="" />
+                            <img src={productsList.find(item => item.id === product.id)?.images[0]?.image_data || product.image} alt="" />
                         </div>
                         <div className='cart-item-info'>
-                            <p className='cart-item-name'>{productsList.find(item => item.id === product.id)?.name}</p>
+                            <p className='cart-item-name'>{substractWords(productsList.find(item => item.id === product.id)?.product_name || product.name)}</p>
                             <p className='cart-item-quantity'>Cantidad: {product.quantity}</p>
+                            <p className='cart-item-quantity'>{parseFloat(productsList.find(item => item.id === product.id)?.product_price || product.price).toLocaleString("es-AR",{style: "currency", currency: "ARS"})}</p>
                         </div>
                         <Space>
                             <Button icon={<PlusOutlined />} type='primary' onClick={() => {
