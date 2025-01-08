@@ -114,7 +114,8 @@ function usePayment() {
             const processedProducts = parsedProducts.map(prod => {
                 return {
                     id: prod.id,
-                    quantity: prod.quantity
+                    quantity: prod.quantity,
+                    item_type: prod.item_type
                 }
             })
             formData.append("products", JSON.stringify(processedProducts))
@@ -161,15 +162,6 @@ function usePayment() {
                 }
                 const downloadUrl = URL.createObjectURL(pdfBlob);
 
-                notification.info({
-                    message: "Recibo generado con éxito",
-                    description: "Deberás sacar captura del recibo, y volver a esta sección para ser dirigido al whatsapp de soporte para enviar dicho recibo",
-                    duration: 4,
-                    showProgress: true,
-                    pauseOnHover: false
-                });
-    
-
                 setTimeout(() => {
                     const link = document.createElement("a");
                     link.href = downloadUrl;
@@ -179,7 +171,7 @@ function usePayment() {
                     document.body.removeChild(link);
                     URL.revokeObjectURL(downloadUrl);
                     setShowWhatsapp(true)
-                }, 4000);
+                }, 1000);
     
                 return true;
 
@@ -208,27 +200,19 @@ function usePayment() {
     };
 
     const [processigPayment, setProcessigPayment] = useState(false)
+
     const handlePayment = async() => {
         setProcessigPayment(true)
-        let result3;
 
-        if(loginData[0]?.is_verified) await sendPurchaseConfirmation()
+        if(loginData[0]?.is_verified) sendPurchaseConfirmation()
+        substractStockInDb()
+        await generatePdfReceipt()
 
-        await substractStockInDb()
-        result3 = await generatePdfReceipt()
-
-        localStorage.removeItem("current_cart");
-
-        setCart([])
         setProcessigPayment(false)
-        getProducts()
+        await getProducts()
         navigate("/")
 
-        if(result3){
-            return true
-        }else{
-            return false
-        }
+        return true
     };
 
     return {
