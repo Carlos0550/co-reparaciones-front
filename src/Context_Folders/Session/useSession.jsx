@@ -74,6 +74,17 @@ const useSession = () => {
             const response = await fetch(`${apis.backend}/api/clients/login-client?email=${client_email}&password=${userPassword}`, {
                 method: "PUT"
             })
+            console.log(response.status)
+            if(response.status === 403){
+                notification.warning({
+                    description: "La contraseña es incorrecta",
+                    duration: 3,
+                    pauseOnHover: false,
+                    showProgress: true
+                })
+                return false
+            }
+
             if (response.status === 404) {
                 notification.info({
                     message: "No se encontro ningun usuario con ese correo",
