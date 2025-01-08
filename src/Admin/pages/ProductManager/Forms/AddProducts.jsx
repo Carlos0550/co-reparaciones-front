@@ -54,8 +54,6 @@ function AddProducts() {
     const [saving, setSaving] = useState(false);
     const onFinish = async (values) => {
         setSaving(true)
-        console.log("Valores del formulario: ",values)
-        console.log("Descripciones: ", editorState)
 
         const formData = new FormData();
         for (const key in values) {

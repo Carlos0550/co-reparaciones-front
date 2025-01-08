@@ -20,7 +20,6 @@ function Dashboard() {
       setGettingOrders(false);
       
       if (!result) {
-        message.info("No hay órdenes de compra");
         setOrders([]);
         return;
       }
@@ -51,8 +50,6 @@ function Dashboard() {
             fetchOrders();
         }
     }, [])
-
-    console.log(loginData)
 const { 
   orderCols, 
   openModal,

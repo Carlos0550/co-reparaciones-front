@@ -13,8 +13,9 @@ function useOrders(processOrders, handleGetOrders) {
 
             parsedProducts.forEach(product => {
                 products.push({
-                    name: product.product_name,
-                    quantity: product.quantity
+                    name: product.product_name || product.name,
+                    quantity: product.quantity,
+                    id: product.id
                 })
             })
         } catch (error) {
@@ -23,7 +24,6 @@ function useOrders(processOrders, handleGetOrders) {
 
         return products
     }
-
     const orderCols = [
         {
             title: "Estado de la orden",

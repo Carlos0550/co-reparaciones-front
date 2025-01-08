@@ -29,8 +29,7 @@ const { handleVerifyRoleAndSession } = useSession()
         if (!alreadyVerified.current) {
             alreadyVerified.current = true
             console.log("Verificando rol...")
-            const result = handleVerifyRoleAndSession()
-            console.log(result)
+            handleVerifyRoleAndSession()
         }
     }, [])
     
