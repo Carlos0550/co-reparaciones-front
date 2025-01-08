@@ -6,13 +6,14 @@ import { BrowserRouter } from 'react-router-dom'
 import { AppProvider } from './AppContext.jsx'
 import esES from 'antd/es/locale/es_ES';
 import { ConfigProvider } from 'antd'
-
+import { Analytics } from "@vercel/analytics/react"
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AppProvider>
         <ConfigProvider locale={esES}>
+          <Analytics/>
           <App />
         </ConfigProvider>
       </AppProvider>
