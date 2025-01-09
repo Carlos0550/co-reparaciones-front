@@ -38,7 +38,7 @@ function ClientLayout() {
     }, [])
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [productsPerPage] = useState(20);
+    const [productsPerPage] = useState(40);
 
     const indexOfLastProduct = currentPage * productsPerPage
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage
