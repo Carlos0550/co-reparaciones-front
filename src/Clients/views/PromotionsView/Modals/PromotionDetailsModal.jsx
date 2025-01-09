@@ -179,11 +179,6 @@ function PromotionDetailsModal({ closeModal, promotion }) {
         }
           
           <div className="promotion-buttons">
-            <button className='promotion-btn-details' 
-            >
-              <InfoCircleOutlined/> Más detalles
-              </button>
-
               <button className='promotion-btn-add-cart' 
               onClick={()=> handleAddCart()} >
               <ShoppingCartOutlined/> Añadir al carrito
