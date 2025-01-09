@@ -1,4 +1,4 @@
-import { Button, Popconfirm, Space, Table } from "antd"
+import { Button, Input, Popconfirm, Space, Table } from "antd"
 import { useAppContext } from "../../../../AppContext"
 import React, { useEffect, useState } from "react"
 import "./ProductsTable.css"
@@ -6,18 +6,26 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
 import EditorModal from "../../../../Components/Modales/EditorModal"
 import ViewDescriptionsModal from "../../../../Components/Modales/ViewDescriptionsModal"
 function ProductsTable() {
-    const { getProducts, 
+    const { 
         productsList, 
         handleProducts, 
         showProductForm, 
         deleteProducts,
         categories,
-        width
     } = useAppContext()
 
     const [viewDescriptionProduct, setViewDescriptionProduct] = useState(false)
     const [productDescription, setProductDescription] = useState("")
+    const [searchText, setSearchText] = useState("")
 
+    const filterProducts = () => {
+        return productsList.filter((product) => {
+            const matchesSearch = product.product_name.toLowerCase().includes(searchText.toLowerCase())
+            return matchesSearch
+        })
+    }
+
+    const filteredProducts = filterProducts()
 
     const tableColumns = [
         {
@@ -97,9 +105,19 @@ function ProductsTable() {
 
     return (
         <React.Fragment>
+            <Input.Search
+                style={{
+                    maxWidth: 300,
+                    marginLeft: 10
+                }}
+
+                placeholder="Buscar producto"
+                allowClear
+                onChange={(e) => setSearchText(e.target.value)}
+            />
             <Table
                 columns={tableColumns}
-                dataSource={productsList}
+                dataSource={filteredProducts}
                 scroll={{ x: 1000 }}
             />
 
