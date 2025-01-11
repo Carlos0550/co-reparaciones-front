@@ -248,8 +248,11 @@ const useSession = () => {
         }else{
             localStorage.removeItem("session_data")
             parsedSessionData = []
-            message.error("No tienes permiso para acceder a esta sección")
-            navigate("/") 
+            
+            if(!route.includes("/login-")) {
+                message.error("No tienes permiso para acceder a esta sección")
+                navigate("/")
+            }
             return 
         }
 
