@@ -43,12 +43,12 @@ function ClientLayout() {
     const indexOfLastProduct = currentPage * productsPerPage
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage
     const currentProducts = productsList.slice(indexOfFirstProduct, indexOfLastProduct)
-
+    const containerRef = useRef(null)
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber)
         setTimeout(() => {
             window.scrollTo({
-                top: 50,
+                top: containerRef.current.offsetTop,
                 behavior: 'smooth',
 
             })
@@ -61,7 +61,7 @@ function ClientLayout() {
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     }
-
+    
     return (
         <React.Fragment>
             <ClientHeader />
@@ -75,6 +75,7 @@ function ClientLayout() {
                                 <>
                                     {banners && banners.length > 0 && <BannersView />}
                                     {promotions && promotions.length > 0 && <PromotionsView />}
+                                    <div ref={containerRef}></div>
                                     <ProductsView products={currentProducts} />
                                     <Pagination
                                         current={currentPage}
