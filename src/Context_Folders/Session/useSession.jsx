@@ -74,7 +74,7 @@ const useSession = () => {
             const response = await fetch(`${apis.backend}/api/clients/login-client?email=${client_email}&password=${userPassword}`, {
                 method: "PUT"
             })
-            console.log(response.status)
+
             if(response.status === 403){
                 notification.warning({
                     description: "La contraseña es incorrecta",
@@ -234,7 +234,7 @@ const useSession = () => {
     const navigate = useNavigate()
     const handleVerifyRoleAndSession = () => {
         const session_data = localStorage.getItem("session_data")
-
+        console.log(session_data)
         let parsedSessionData = []
         const route = window.location.pathname
         
@@ -247,15 +247,18 @@ const useSession = () => {
             }
         }else{
             localStorage.removeItem("session_data")
+            parsedSessionData = []
+            message.error("No tienes permiso para acceder a esta sección")
+            navigate("/") 
             return 
         }
-
 
         if(parsedSessionData?.user_type === "admin" && !route.includes("/admin-")){
             message.error("No tienes permiso para acceder a esta sección")
             navigate("/admin-dashboard")
             return;
-        }if(!parsedSessionData?.user_type === "client" && route === "/client-info"){
+        }
+        if(!parsedSessionData?.user_type === "client" && route === "/client-info"){
             message.error("No tienes permiso para acceder a esta sección")
             navigate("client-info")
             return
